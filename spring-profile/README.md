@@ -1,0 +1,1 @@
+Spring profile with no need Spring Context
