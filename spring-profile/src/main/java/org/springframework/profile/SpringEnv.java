@@ -1,4 +1,4 @@
-package com.mageddo.utils;
+package org.springframework.profile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,14 +13,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Properties;
-import java.util.logging.Logger;
 
 /**
  * Created by elvis on 07/05/17.
  */
 public class SpringEnv {
 
-	private static final Log LOGGER = LogFactory.getLog(SpringUtils.class);
+	private static final Log LOGGER = LogFactory.getLog(SpringEnvSingleton.class);
 
 	private final StandardEnvironment env;
 

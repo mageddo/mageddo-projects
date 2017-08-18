@@ -1,11 +1,11 @@
-package com.mageddo.utils;
+package org.springframework.profile;
 
 import org.springframework.core.env.Environment;
 
 /**
  * Created by elvis on 07/05/17.
  */
-public class SpringUtils {
+public class SpringEnvSingleton {
 
 	private static Environment instance;
 

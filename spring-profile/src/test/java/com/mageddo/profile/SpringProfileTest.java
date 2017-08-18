@@ -1,7 +1,7 @@
-package com.mageddo.service;
+package com.mageddo.profile;
 
-import com.mageddo.utils.SpringEnv;
-import com.mageddo.utils.SpringUtils;
+import org.springframework.profile.SpringEnv;
+import org.springframework.profile.SpringEnvSingleton;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.core.env.Environment;
@@ -14,8 +14,8 @@ public class SpringProfileTest {
 	@Test
 	public void defaultProfileTest(){
 
-		SpringUtils.prepareEnv(new String[]{});
-		final Environment env = SpringUtils.getEnv();
+		SpringEnvSingleton.prepareEnv(new String[]{});
+		final Environment env = SpringEnvSingleton.getEnv();
 		Assert.assertEquals("DEBUG", env.getProperty("logging.level.root"));
 
 	}
