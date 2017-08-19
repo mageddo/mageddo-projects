@@ -11,8 +11,8 @@ public class SpringEnvSingleton {
 
 	/**
 	 * Load spring properties based on active profiles
-	 * @param args
-	 * @return
+	 * @param args like spring boot params
+	 * @return true if create a new environment, false when not
 	 */
 	public static boolean prepareEnv(String[] args){
 		if (instance == null) {
