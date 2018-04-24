@@ -8,13 +8,15 @@ import java.util.Collection;
 
 public interface MessageSender {
 
+	void sendAsync(ProducerRecord r);
+
 	void send(ProducerRecord r);
 
 	void send(String topic, Collection list);
 
 	void send(String topic, Versioned o);
 
-	void send(String topic, Versioned o, String key);
+	void send(String topic, String key, Versioned o);
 
 	void send(String topic, String o);
 
@@ -24,5 +26,5 @@ public interface MessageSender {
 
 	void send(String topic, Object o);
 
-	void send(String topic, Object o, String key);
+	void send(String topic, String key, Object o);
 }
