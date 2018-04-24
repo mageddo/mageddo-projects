@@ -11,7 +11,6 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.stereotype.Component;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 
 import java.util.Collection;
@@ -20,14 +19,13 @@ import static org.springframework.transaction.interceptor.TransactionAspectSuppo
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
-@Component
 public class MessageSenderImpl implements MessageSender {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private KafkaTemplate<String, String> kafkaTemplate;
+	private KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
-	public MessageSenderImpl(KafkaTemplate<String, String> kafkaTemplate) {
+	public MessageSenderImpl(KafkaTemplate<String, byte[]> kafkaTemplate) {
 		this.kafkaTemplate = kafkaTemplate;
 		this.objectMapper = new ObjectMapper();
 	}
