@@ -1,4 +1,4 @@
 rootProject.name = 'spring-projects'
 
 include 'spring-profile'
-include 'log-tracer'
+include 'spring-log-tracer'
