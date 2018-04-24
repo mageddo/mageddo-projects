@@ -42,7 +42,7 @@ public class LogHandler {
 
 	}
 
-	static String traceInfo(JoinPoint joinPoint, Object r) {
+	public static String traceInfo(JoinPoint joinPoint, Object r) {
 		final Signature signature = joinPoint.getSignature();
 		return String.format("h_clazz=%s, h_m=%s, h_args=%s, h_return=%s, h_line=%d",
 			signature.getDeclaringType().getSimpleName(), signature.getName(), argsToString(joinPoint.getArgs()),
