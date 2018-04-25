@@ -24,6 +24,8 @@ public interface MessageSender {
 
 	void sendDLQ(ConsumerRecord r);
 
+	void sendDLQ(String dlqTopic, ConsumerRecord r);
+
 	void send(String topic, Object o);
 
 	void send(String topic, String key, Object o);

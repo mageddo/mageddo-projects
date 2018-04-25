@@ -106,7 +106,12 @@ public class MessageSenderImpl implements MessageSender {
 
 	@Override
 	public void sendDLQ(ConsumerRecord r){
-		send(new ProducerRecord<>(KafkaUtils.getDLQ(r.topic()), null, r.key(), r.value(), r.headers()));
+		sendDLQ(KafkaUtils.getDLQ(r.topic()), r);
+	}
+
+	@Override
+	public void sendDLQ(String dlqTopic, ConsumerRecord r){
+		send(new ProducerRecord<>(dlqTopic, null, r.key(), r.value(), r.headers()));
 	}
 
 	@Override

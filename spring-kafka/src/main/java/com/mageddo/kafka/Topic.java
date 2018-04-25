@@ -19,6 +19,7 @@ public class Topic implements TopicDefinition {
 	private boolean autoConfigure;
 	private Map<String, Object> props;
 	private RetryStrategy retryStrategy;
+	private String dlq;
 
 	public Topic(){
 		this.autoConfigure = true;
@@ -173,4 +174,12 @@ public class Topic implements TopicDefinition {
 		}
 	}
 
+	public String getDlq() {
+		return dlq;
+	}
+
+	public Topic dlq(String dlq) {
+		this.dlq = dlq;
+		return this;
+	}
 }
