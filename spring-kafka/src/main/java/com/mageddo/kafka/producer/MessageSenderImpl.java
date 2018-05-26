@@ -11,16 +11,18 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
+import org.springframework.util.StopWatch;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
-
-import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
-import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
-import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
+import java.util.LinkedList;
+import java.util.List;
 
 public class MessageSenderImpl implements MessageSender {
 
+	public static final String KAFKA_TRANSACTION = "kafka_transaction";
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final ObjectMapper objectMapper;
@@ -31,44 +33,41 @@ public class MessageSenderImpl implements MessageSender {
 	}
 
 	@Override
-	public void sendAsync(ProducerRecord r){
-		if(isSynchronizationActive() && !currentTransactionStatus().isRollbackOnly()){
-			registerSynchronization(new TransactionSynchronizationAdapter() {
+	public void send(ProducerRecord r) {
+
+		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+			try {
+				kafkaTemplate.send(r).get();
+			} catch (Exception e) {
+				throw new RuntimeException(e);
+			}
+		}
+
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		if (!TransactionSynchronizationManager.hasResource(KAFKA_TRANSACTION)) {
+			TransactionSynchronizationManager.bindResource(KAFKA_TRANSACTION, new LinkedList<>());
+			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
 				@Override
-				public void afterCommit() {
-					logger.debug("m=send, status=transactional");
-					kafkaTemplate.send(r);
+				public void beforeCommit(boolean readOnly) {
+					final StopWatch stopWatch = new StopWatch();
+					stopWatch.start();
+					final List<ListenableFuture> transactions = getTransactions();
+					try {
+						for (final ListenableFuture listenableFuture : transactions) {
+							listenableFuture.get();
+						}
+					} catch (Exception e) {
+						logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
+						throw new RuntimeException(e);
+					} finally {
+						TransactionSynchronizationManager.unbindResource(KAFKA_TRANSACTION);
+					}
+					logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
 				}
 			});
-		}else{
-			logger.debug("m=send, status=no-transactional");
-			kafkaTemplate.send(r);
 		}
-	}
-
-
-	@Override
-	public void send(ProducerRecord r){
-		if(isSynchronizationActive() && !currentTransactionStatus().isRollbackOnly()){
-			registerSynchronization(new TransactionSynchronizationAdapter() {
-				@Override
-				public void afterCommit() {
-					logger.debug("m=send, status=transactional");
-					doSend(r);
-				}
-			});
-		}else{
-			logger.debug("m=send, status=no-transactional");
-			doSend(r);
-		}
-	}
-
-	private void doSend(ProducerRecord r) {
-		try {
-			kafkaTemplate.send(r).get();
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		getTransactions().add(kafkaTemplate.send(r));
 	}
 
 	@Override
@@ -130,5 +129,9 @@ public class MessageSenderImpl implements MessageSender {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	private List<ListenableFuture> getTransactions() {
+		return (List<ListenableFuture>) TransactionSynchronizationManager.getResource(KAFKA_TRANSACTION);
 	}
 }

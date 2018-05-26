@@ -8,8 +8,6 @@ import java.util.Collection;
 
 public interface MessageSender {
 
-	void sendAsync(ProducerRecord r);
-
 	void send(ProducerRecord r);
 
 	void send(String topic, Collection list);
