@@ -8,6 +8,10 @@ import java.util.Collection;
 
 public interface MessageSender {
 
+	/**
+	 * Send messages grating server ACK and rollbacking database transaction and throws exception if not
+	 * @param r
+	 */
 	void send(ProducerRecord r);
 
 	void send(String topic, Collection list);
