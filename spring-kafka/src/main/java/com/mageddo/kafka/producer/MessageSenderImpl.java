@@ -64,11 +64,14 @@ public class MessageSenderImpl implements MessageSender {
 					} catch (Exception e) {
 						logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
 						throw new RuntimeException(e);
-					} finally {
-						unbindResource(KAFKA_TRANSACTION);
 					}
 					logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
-					}
+				}
+
+				@Override
+				public void afterCompletion(int status) {
+					unbindResource(KAFKA_TRANSACTION);
+				}
 			});
 		}
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
@@ -137,7 +140,7 @@ public class MessageSenderImpl implements MessageSender {
 		}
 	}
 
-	private List<ListenableFuture> getTransactions() {
+	static List<ListenableFuture> getTransactions() {
 		return (List<ListenableFuture>) TransactionSynchronizationManager.getResource(KAFKA_TRANSACTION);
 	}
 }

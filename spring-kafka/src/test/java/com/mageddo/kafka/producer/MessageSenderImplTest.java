@@ -17,8 +17,12 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import static com.mageddo.kafka.producer.MessageSenderImpl.KAFKA_TRANSACTION;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.*;
 import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
+import static org.springframework.transaction.support.TransactionSynchronizationManager.hasResource;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {})
@@ -48,6 +52,8 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture, never()).get();
+		assertNull(MessageSenderImpl.getTransactions());
+		assertFalse(hasResource(KAFKA_TRANSACTION));
 	}
 
 	@Test
@@ -61,6 +67,8 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture).get();
+		assertNull(MessageSenderImpl.getTransactions());
+		assertFalse(hasResource(KAFKA_TRANSACTION));
 	}
 
 
@@ -75,6 +83,8 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture, never()).get();
+		assertNull(MessageSenderImpl.getTransactions());
+		assertFalse(hasResource(KAFKA_TRANSACTION));
 	}
 
 
