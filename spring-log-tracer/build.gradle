@@ -3,7 +3,7 @@ apply plugin: 'maven'
 apply plugin: 'signing'
 
 
-sourceCompatibility = 1.6
+sourceCompatibility = 1.8
 
 group 'com.mageddo'
 archivesBaseName = 'spring-log-tracer'
