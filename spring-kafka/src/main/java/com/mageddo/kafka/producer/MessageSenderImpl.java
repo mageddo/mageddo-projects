@@ -11,6 +11,7 @@ import org.apache.kafka.common.header.internals.RecordHeader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
+import org.springframework.kafka.support.SendResult;
 import org.springframework.transaction.support.TransactionSynchronization;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StopWatch;
@@ -19,6 +20,8 @@ import org.springframework.util.concurrent.ListenableFuture;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.springframework.transaction.support.TransactionSynchronizationManager.*;
 
 public class MessageSenderImpl implements MessageSender {
 
@@ -33,11 +36,11 @@ public class MessageSenderImpl implements MessageSender {
 	}
 
 	@Override
-	public void send(ProducerRecord r) {
+	public ListenableFuture<SendResult> send(ProducerRecord r) {
 
-		if (!TransactionSynchronizationManager.isSynchronizationActive()) {
+		if (!isSynchronizationActive()) {
 			try {
-				kafkaTemplate.send(r).get();
+				return kafkaTemplate.send(r);
 			} catch (Exception e) {
 				throw new RuntimeException(e);
 			}
@@ -45,29 +48,32 @@ public class MessageSenderImpl implements MessageSender {
 
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		if (!TransactionSynchronizationManager.hasResource(KAFKA_TRANSACTION)) {
-			TransactionSynchronizationManager.bindResource(KAFKA_TRANSACTION, new LinkedList<>());
-			TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+
+		if (!hasResource(KAFKA_TRANSACTION)) {
+			bindResource(KAFKA_TRANSACTION, new LinkedList<>());
+			registerSynchronization(new TransactionSynchronization() {
 				@Override
 				public void beforeCommit(boolean readOnly) {
-					final StopWatch stopWatch = new StopWatch();
-					stopWatch.start();
-					final List<ListenableFuture> transactions = getTransactions();
-					try {
-						for (final ListenableFuture listenableFuture : transactions) {
-							listenableFuture.get();
-						}
-					} catch (Exception e) {
-						logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
-						throw new RuntimeException(e);
-					} finally {
-						TransactionSynchronizationManager.unbindResource(KAFKA_TRANSACTION);
+				final StopWatch stopWatch = new StopWatch();
+				stopWatch.start();
+				final List<ListenableFuture> transactions = getTransactions();
+				try {
+					for (final ListenableFuture listenableFuture : transactions) {
+						listenableFuture.get();
 					}
-					logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
+				} catch (Exception e) {
+					logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
+					throw new RuntimeException(e);
+				} finally {
+					unbindResource(KAFKA_TRANSACTION);
+				}
+				logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
 				}
 			});
 		}
-		getTransactions().add(kafkaTemplate.send(r));
+		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
+		getTransactions().add(listenableFuture);
+		return listenableFuture;
 	}
 
 	@Override

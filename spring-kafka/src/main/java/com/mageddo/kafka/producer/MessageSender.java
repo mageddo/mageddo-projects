@@ -3,6 +3,8 @@ package com.mageddo.kafka.producer;
 import com.fasterxml.jackson.core.Versioned;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.springframework.kafka.support.SendResult;
+import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
 
@@ -12,7 +14,7 @@ public interface MessageSender {
 	 * Send messages grating server ACK and rollbacking database transaction and throws exception if not
 	 * @param r
 	 */
-	void send(ProducerRecord r);
+	ListenableFuture<SendResult> send(ProducerRecord r);
 
 	void send(String topic, Collection list);
 
