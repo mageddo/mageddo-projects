@@ -4,20 +4,27 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.context.annotation.Primary;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import static org.mockito.Mockito.*;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {})
-@ContextConfiguration(classes = MessageSenderImplTest.class)
+@ContextConfiguration(classes = MessageSenderImplTest.Conf.class)
+@EnableAspectJAutoProxy(proxyTargetClass = true)
+@EnableTransactionManagement
+@EnableAutoConfiguration
 public class MessageSenderImplTest {
 
 	@Autowired
@@ -25,6 +32,9 @@ public class MessageSenderImplTest {
 
 	@Autowired
 	private MessageSender messageSender;
+
+	@Autowired
+	private Conf conf;
 
 	@Test
 	public void mustSendWithWithoutWaitMessageCommitWhenThereIsNoDatabaseTransaction() throws Exception {
@@ -39,16 +49,40 @@ public class MessageSenderImplTest {
 		verify(listenableFuture, never()).get();
 	}
 
+	@Test
+	public void mustSendWithAndtWaitMessageCommitWhenTransactionisActive() throws Exception {
 
-	@Bean
-	@Primary
-	public KafkaTemplate kafkaTemplate(){
-		return mock(KafkaTemplate.class);
+		// arrange
+		doReturn(mock(ListenableFuture.class)).when(kafkaTemplate).send(any(ProducerRecord.class));
+
+		// act
+		final ListenableFuture<SendResult> listenableFuture = conf.send();
+
+		// assert
+		verify(listenableFuture, never()).get();
 	}
 
-	@Bean
-	@Primary
-	public MessageSender messageSender(){
-		return new MessageSenderImpl(kafkaTemplate);
+
+	static class Conf {
+
+		@Autowired
+		private MessageSender messageSender;
+
+		@Bean
+		@Primary
+		public KafkaTemplate kafkaTemplate(){
+			return mock(KafkaTemplate.class);
+		}
+
+		@Bean
+		@Primary
+		public MessageSender messageSender(KafkaTemplate kafkaTemplate){
+			return new MessageSenderImpl(kafkaTemplate);
+		}
+
+		@Transactional
+		public ListenableFuture send(){
+			return messageSender.send(new ProducerRecord("myTopic", "value"));
+		}
 	}
 }
