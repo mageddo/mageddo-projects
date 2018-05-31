@@ -57,7 +57,7 @@ public class MessageSenderImplTest {
 	}
 
 	@Test
-	public void mustSendWithAndtWaitMessageCommitWhenTransactionisActive() throws Exception {
+	public void mustSendWithAndWaitMessageCommitWhenTransactionisActive() throws Exception {
 
 		// arrange
 		doReturn(mock(ListenableFuture.class)).when(kafkaTemplate).send(any(ProducerRecord.class));

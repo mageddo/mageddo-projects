@@ -2,8 +2,8 @@ apply plugin: 'java'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
-sourceCompatibility = 1.8
-targetCompatibility = 1.8
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
 
 group 'com.mageddo'
 archivesBaseName = 'spring-kafka'
@@ -12,7 +12,6 @@ version '1.2.0'
 repositories {
 	mavenCentral()
 }
-
 
 configurations {
 	provided
