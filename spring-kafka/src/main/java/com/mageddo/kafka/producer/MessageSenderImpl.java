@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
@@ -51,24 +51,24 @@ public class MessageSenderImpl implements MessageSender {
 
 		if (!hasResource(KAFKA_TRANSACTION)) {
 			bindResource(KAFKA_TRANSACTION, new LinkedList<>());
-			registerSynchronization(new TransactionSynchronization() {
+			registerSynchronization(new TransactionSynchronizationAdapter() {
 				@Override
 				public void beforeCommit(boolean readOnly) {
-				final StopWatch stopWatch = new StopWatch();
-				stopWatch.start();
-				final List<ListenableFuture> transactions = getTransactions();
-				try {
-					for (final ListenableFuture listenableFuture : transactions) {
-						listenableFuture.get();
+					final StopWatch stopWatch = new StopWatch();
+					stopWatch.start();
+					final List<ListenableFuture> transactions = getTransactions();
+					try {
+						for (final ListenableFuture listenableFuture : transactions) {
+							listenableFuture.get();
+						}
+					} catch (Exception e) {
+						logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
+						throw new RuntimeException(e);
+					} finally {
+						unbindResource(KAFKA_TRANSACTION);
 					}
-				} catch (Exception e) {
-					logger.info("m=send, status=rollback, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
-					throw new RuntimeException(e);
-				} finally {
-					unbindResource(KAFKA_TRANSACTION);
-				}
-				logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
-				}
+					logger.info("m=send, status=committed, records={}, time={}", transactions.size(), stopWatch.getTotalTimeMillis());
+					}
 			});
 		}
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);

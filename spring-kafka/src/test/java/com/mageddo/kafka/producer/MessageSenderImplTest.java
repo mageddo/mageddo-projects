@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import static org.mockito.Mockito.*;
+import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = {})
@@ -59,6 +60,20 @@ public class MessageSenderImplTest {
 		final ListenableFuture<SendResult> listenableFuture = conf.send();
 
 		// assert
+		verify(listenableFuture).get();
+	}
+
+
+	@Test
+	public void mustNotPostMessageBecauseTransactionIsRollbackOnly() throws Exception {
+
+		// arrange
+		doReturn(mock(ListenableFuture.class)).when(kafkaTemplate).send(any(ProducerRecord.class));
+
+		// act
+		final ListenableFuture<SendResult> listenableFuture = conf.sendWithRollback();
+
+		// assert
 		verify(listenableFuture, never()).get();
 	}
 
@@ -83,6 +98,12 @@ public class MessageSenderImplTest {
 		@Transactional
 		public ListenableFuture send(){
 			return messageSender.send(new ProducerRecord("myTopic", "value"));
+		}
+
+		@Transactional
+		public ListenableFuture<SendResult> sendWithRollback() {
+			currentTransactionStatus().setRollbackOnly();
+			return send();
 		}
 	}
 }
