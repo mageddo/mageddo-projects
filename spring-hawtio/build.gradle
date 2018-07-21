@@ -1,0 +1,95 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+targetCompatibility = JavaVersion.VERSION_1_8
+
+group 'com.mageddo'
+archivesBaseName = 'spring-hawtio'
+version '2.0.2'
+
+repositories {
+	mavenCentral()
+}
+
+tasks.withType(JavaCompile) {
+	options.encoding = 'UTF-8'
+}
+
+dependencies {
+	compile group: 'io.hawt', name: 'hawtio-system', version: '2.0.2'
+	compileOnly group: 'io.hawt', name: 'hawtio-default', version: '2.0.2'
+	compileOnly group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '2.0.3.RELEASE'
+}
+
+processResources {
+	doLast {
+		def dep = project.configurations.compileOnly.filter { it.name.contains('hawtio-default') }.singleFile
+		ant.unzip(src: dep, dest: new File(project.sourceSets.main.output.resourcesDir, "hawtio-static")){
+			patternset(excludes: '**/WEB-INF/**,**/META-INF/**')
+		}
+	}
+}
+
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+signing {
+	sign configurations.archives
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			pom.project {
+				name 'Spring Kafka'
+				packaging 'jar'
+				description 'Simplify Consumer And Producer Configuration'
+				url 'https://github.com/mageddo/spring-projects/tree/master/spring-hawtio'
+
+				scm {
+					connection 'https://github.com/mageddo/spring-projects.git'
+					developerConnection 'https://github.com/mageddo/spring-projects.git'
+					url 'https://github.com/mageddo/spring-projects/tree/master/spring-hawtio'
+				}
+
+				licenses {
+					license {
+						name 'The Apache License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+
+				developers {
+					developer {
+						id 'mageddo'
+						name 'Elvis Souza'
+						email 'edigitalb@gmail.com'
+					}
+				}
+			}
+		}
+	}
+}
