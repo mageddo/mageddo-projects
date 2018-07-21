@@ -1,34 +1,5 @@
-apply plugin: 'java'
-apply plugin: 'maven'
-apply plugin: 'signing'
-
-
-sourceCompatibility = 1.8
-
-group 'com.mageddo'
 archivesBaseName = 'spring-log-tracer'
 version '1.0.0'
-
-repositories {
-	mavenCentral()
-}
-
-
-configurations {
-	provided
-}
-
-sourceSets {
-	main {
-		compileClasspath += configurations.provided
-		test.compileClasspath += configurations.provided
-		test.runtimeClasspath += configurations.provided
-	}
-}
-
-tasks.withType(JavaCompile) {
-	options.encoding = 'UTF-8'
-}
 
 dependencies {
 
@@ -38,24 +9,6 @@ dependencies {
 	testCompile group: 'org.mockito', name: 'mockito-all', version: '1.10.19'
 	testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
 
-}
-
-task javadocJar(type: Jar) {
-	classifier = 'javadoc'
-	from javadoc
-}
-
-task sourcesJar(type: Jar) {
-	classifier = 'sources'
-	from sourceSets.main.allSource
-}
-
-artifacts {
-	archives javadocJar, sourcesJar
-}
-
-signing {
-	sign configurations.archives
 }
 
 uploadArchives {
