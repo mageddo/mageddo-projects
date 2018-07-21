@@ -1,5 +1,5 @@
 archivesBaseName = 'spring-hawtio'
-version '2.0.2'
+version '2.0.2_1.1.0'
 
 dependencies {
 	compile group: 'io.hawt', name: 'hawtio-system', version: '2.0.2'
