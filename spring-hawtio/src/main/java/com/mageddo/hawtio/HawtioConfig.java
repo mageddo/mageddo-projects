@@ -28,6 +28,9 @@ public class HawtioConfig implements WebMvcConfigurer {
 	@Value("${:classpath:/hawtio-static/index.html}")
 	private Resource index;
 
+	@Value("${spring.hawtio.proxyWhitelist:}")
+	private String proxyWhitelist;
+
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry
@@ -37,7 +40,11 @@ public class HawtioConfig implements WebMvcConfigurer {
 
 	@Bean
 	public ServletRegistrationBean servletRegistrationBean(){
-		return new ServletRegistrationBean(new ProxyServlet(),"/hawtio/proxy/*");
+		final ServletRegistrationBean registrator = new ServletRegistrationBean(new ProxyServlet(), "/hawtio/proxy/*");
+		if(!proxyWhitelist.isEmpty()){
+			registrator.addInitParameter("proxyWhitelist", proxyWhitelist);
+		}
+		return registrator;
 	}
 
 	@GetMapping(value = {"", "/"}, produces = MediaType.TEXT_HTML_VALUE)
