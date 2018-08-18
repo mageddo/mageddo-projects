@@ -1,6 +1,7 @@
-rootProject.name = 'spring-projects'
+rootProject.name = 'mageddo-projects'
 
 include 'spring-profile'
 include 'spring-log-tracer'
 include 'spring-kafka'
 include 'spring-hawtio'
+include 'mg-togglz'

@@ -1,0 +1,52 @@
+archivesBaseName = 'mg-togglz'
+version '2.6.1_1.0.0'
+
+sourceCompatibility = 1.8
+
+dependencies {
+	compileOnly group: 'org.togglz', name: 'togglz-core', version: '2.6.1.Final'
+}
+
+uploadArchives {
+	repositories {
+		mavenDeployer {
+			beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+			repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+				authentication(userName: ossrhUsername, password: ossrhPassword)
+			}
+
+			pom.project {
+				name 'MG Togglz'
+				packaging 'jar'
+				description 'Adding performable user activation feature to togglz'
+				url 'https://github.com/mageddo/spring-projects/tree/master/mg-togglz'
+
+				scm {
+					connection 'https://github.com/mageddo/spring-projects.git'
+					developerConnection 'https://github.com/mageddo/spring-projects.git'
+					url 'https://github.com/mageddo/spring-projects/tree/master/mg-togglz'
+				}
+
+				licenses {
+					license {
+						name 'The Apache License, Version 2.0'
+						url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+
+				developers {
+					developer {
+						id 'mageddo'
+						name 'Elvis Souza'
+						email 'edigitalb@gmail.com'
+					}
+				}
+			}
+		}
+	}
+}
