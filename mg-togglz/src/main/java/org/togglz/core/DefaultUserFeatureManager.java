@@ -1,7 +1,5 @@
 package org.togglz.core;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.togglz.core.activation.ActivationStrategyProvider;
 import org.togglz.core.manager.FeatureManager;
 import org.togglz.core.manager.FeatureManagerBuilder;
@@ -20,7 +18,6 @@ import java.util.Set;
 
 public class DefaultUserFeatureManager implements UserFeatureManager {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final String name;
 	private final StateRepository stateRepository;
 	private final FeatureManager featureManager;
@@ -83,7 +80,6 @@ public class DefaultUserFeatureManager implements UserFeatureManager {
 				return strategy.isActive(globalSate, user);
 			}
 		}
-		logger.debug("status=strategy-not-found, feature={}, strategy={}", feature.name(), strategyId);
 		return false;
 	}
 

@@ -1,8 +1,6 @@
 package org.togglz.core.repository;
 
 import org.togglz.core.Cache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.togglz.core.Feature;
 
 import java.time.Duration;
@@ -12,7 +10,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CachingStateRepository implements StateRepository {
 
-	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private final StateRepository stateRepository;
 	private final Cache<FeatureState> cache;
 
