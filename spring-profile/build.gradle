@@ -29,12 +29,12 @@ uploadArchives {
 				packaging 'jar'
 				// optionally artifactId can be defined here
 				description 'Use Spring Env Profile without spring boot, only using spring core'
-				url 'https://github.com/mageddo/spring-projects/tree/master/spring-profile'
+				url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-profile'
 
 				scm {
-					connection 'https://github.com/mageddo/spring-projects.git'
-					developerConnection 'https://github.com/mageddo/spring-projects.git'
-					url 'https://github.com/mageddo/spring-projects/tree/master/spring-profile'
+					connection 'https://github.com/mageddo/mageddo-projects.git'
+					developerConnection 'https://github.com/mageddo/mageddo-projects.git'
+					url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-profile'
 				}
 
 				licenses {

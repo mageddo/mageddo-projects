@@ -33,12 +33,12 @@ uploadArchives {
 				name 'Spring Kafka'
 				packaging 'jar'
 				description 'Simplify Consumer And Producer Configuration'
-				url 'https://github.com/mageddo/spring-projects/tree/master/spring-hawtio'
+				url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-hawtio'
 
 				scm {
-					connection 'https://github.com/mageddo/spring-projects.git'
-					developerConnection 'https://github.com/mageddo/spring-projects.git'
-					url 'https://github.com/mageddo/spring-projects/tree/master/spring-hawtio'
+					connection 'https://github.com/mageddo/mageddo-projects.git'
+					developerConnection 'https://github.com/mageddo/mageddo-projects.git'
+					url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-hawtio'
 				}
 
 				licenses {

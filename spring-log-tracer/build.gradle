@@ -28,12 +28,12 @@ uploadArchives {
 				name 'Spring Log Tracer'
 				packaging 'jar'
 				description 'Trace and get methods performance metrics at your logs just by using an annotaion'
-				url 'https://github.com/mageddo/spring-projects/tree/master/spring-log-tracer'
+				url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-log-tracer'
 
 				scm {
-					connection 'https://github.com/mageddo/spring-projects.git'
-					developerConnection 'https://github.com/mageddo/spring-projects.git'
-					url 'https://github.com/mageddo/spring-projects/tree/master/spring-log-tracer'
+					connection 'https://github.com/mageddo/mageddo-projects.git'
+					developerConnection 'https://github.com/mageddo/mageddo-projects.git'
+					url 'https://github.com/mageddo/mageddo-projects/tree/master/spring-log-tracer'
 				}
 
 				licenses {
