@@ -2,11 +2,11 @@ package com.mageddo.featureswitch;
 
 public interface InteractiveFeature extends Feature {
 
-	default Integer asInt(){
-		return asInt(null);
+	default Integer asInteger(){
+		return asInteger(null);
 	}
 
-	default Integer asInt(String user){
+	default Integer asInteger(String user){
 		final String v = value(user);
 		if(v == null){
 			return null;
@@ -32,11 +32,11 @@ public interface InteractiveFeature extends Feature {
 		return metadata != null && metadata.status() == Status.ACTIVE;
 	}
 
-	default Boolean asBool(){
-		return asBool(null);
+	default Boolean asBoolean(){
+		return asBoolean(null);
 	}
 
-	default Boolean asBool(String user){
+	default Boolean asBoolean(String user){
 		return "1".equals(value(user));
 	}
 

@@ -84,7 +84,7 @@ public class InteractiveFeatureTest {
 		// assert
 		assertTrue(feature.isActive());
 		assertEquals(expectedValue, feature.value());
-		assertEquals(Integer.valueOf(expectedValue), feature.asInt());
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger());
 		assertEquals(expectedValue, feature.value("Maria"));
 	}
 
