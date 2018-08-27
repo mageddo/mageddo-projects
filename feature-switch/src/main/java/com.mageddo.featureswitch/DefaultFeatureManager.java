@@ -22,7 +22,7 @@ public class DefaultFeatureManager implements FeatureManager {
 		final FeatureMetadata metadata = findMetadata(feature, null)
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		;
-		repository().updateFeature(metadata, null);
+		repository().updateMetadata(metadata, null);
 	}
 
 	@Override
@@ -31,7 +31,7 @@ public class DefaultFeatureManager implements FeatureManager {
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		.set(FeatureKeys.VALUE, value)
 		;
-		repository().updateFeature(metadata, null);
+		repository().updateMetadata(metadata, null);
 	}
 
 	@Override
@@ -41,10 +41,10 @@ public class DefaultFeatureManager implements FeatureManager {
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 
-			repository().updateFeature(metadata, null);
+			repository().updateMetadata(metadata, null);
 		}
 		{
-			FeatureMetadata metadata = repository().getFeature(feature, user);
+			FeatureMetadata metadata = repository().getMetadata(feature, user);
 			if (metadata == null) {
 				metadata = new DefaultFeatureMetadata(feature);
 			}
@@ -52,7 +52,7 @@ public class DefaultFeatureManager implements FeatureManager {
 			.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 			;
 
-			repository().updateFeature(metadata, user);
+			repository().updateMetadata(metadata, user);
 		}
 	}
 
@@ -62,10 +62,10 @@ public class DefaultFeatureManager implements FeatureManager {
 			final FeatureMetadata metadata = findMetadata(feature, user)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
-			repository().updateFeature(metadata, null);
+			repository().updateMetadata(metadata, null);
 		}
 		{
-			FeatureMetadata metadata = repository().getFeature(feature, user);
+			FeatureMetadata metadata = repository().getMetadata(feature, user);
 			if (metadata == null) {
 				metadata = new DefaultFeatureMetadata(feature);
 			}
@@ -73,7 +73,7 @@ public class DefaultFeatureManager implements FeatureManager {
 			.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 			.set(FeatureKeys.VALUE, value);
 
-			repository().updateFeature(metadata, user);
+			repository().updateMetadata(metadata, user);
 		}
 	}
 
@@ -84,19 +84,19 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void userDeactivate(Feature feature, String user) {
-		FeatureMetadata metadata = repository().getFeature(feature, user);
+		FeatureMetadata metadata = repository().getMetadata(feature, user);
 		if (metadata == null) {
 			metadata = new DefaultFeatureMetadata(feature);
 		}
 		metadata
 		.set(FeatureKeys.STATUS, String.valueOf(Status.INACTIVE.getCode()))
 		;
-		repository().updateFeature(metadata, user);
+		repository().updateMetadata(metadata, user);
 	}
 
 	@Override
 	public FeatureMetadata featureMetadata(Feature feature) {
-		final FeatureMetadata metadata = repository().getFeature(feature, null);
+		final FeatureMetadata metadata = repository().getMetadata(feature, null);
 		if(metadata != null){
 			return metadata;
 		}
@@ -122,7 +122,7 @@ public class DefaultFeatureManager implements FeatureManager {
 			case INACTIVE:
 				return null;
 			case RESTRICTED:
-				return repository().getFeature(feature, user);
+				return repository().getMetadata(feature, user);
 		}
 		return null;
 	}
@@ -160,6 +160,6 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	FeatureMetadata findMetadata(Feature feature, String user) {
-		return repository().getFeatureOrDefault(feature, user, new DefaultFeatureMetadata(feature));
+		return repository().getMetadataOrDefault(feature, user, new DefaultFeatureMetadata(feature));
 	}
 }

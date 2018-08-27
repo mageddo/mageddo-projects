@@ -23,7 +23,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 	}
 
 	@Override
-	public FeatureMetadata getFeature(Feature feature, String user) {
+	public FeatureMetadata getMetadata(Feature feature, String user) {
 		try (
 			final Connection con = dataSource.getConnection();
 		) {
@@ -37,7 +37,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 	}
 
 	@Override
-	public int updateFeature(FeatureMetadata featureMetadata, String user) {
+	public int updateMetadata(FeatureMetadata featureMetadata, String user) {
 		try (
 			final Connection con = dataSource.getConnection();
 		) {

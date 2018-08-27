@@ -13,7 +13,7 @@ public class InMemoryFeatureRepository implements FeatureRepository {
 	private final Map<String, Map<String, String>> featureByUserMap = new HashMap<>();
 
 	@Override
-	public FeatureMetadata getFeature(Feature feature, String user) {
+	public FeatureMetadata getMetadata(Feature feature, String user) {
 		if(user == null){
 			if(!featureMap.containsKey(feature.name())){
 				return null;
@@ -27,7 +27,7 @@ public class InMemoryFeatureRepository implements FeatureRepository {
 	}
 
 	@Override
-	public int updateFeature(FeatureMetadata featureMetadata, String user) {
+	public int updateMetadata(FeatureMetadata featureMetadata, String user) {
 		if(user == null){
 			featureMap.put(featureMetadata.feature().name(), featureMetadata.parameters());
 		} else {

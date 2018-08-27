@@ -78,7 +78,7 @@ public class InteractiveFeatureTest {
 		final Map<String, String> m = new HashMap<>();
 		m.put(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()));
 		m.put(FeatureKeys.VALUE, expectedValue);
-		feature.manager().repository().updateFeature(new DefaultFeatureMetadata(feature, m), null);
+		feature.manager().repository().updateMetadata(new DefaultFeatureMetadata(feature, m), null);
 
 		// act
 		// assert
@@ -99,7 +99,7 @@ public class InteractiveFeatureTest {
 		final Map<String, String> m = new HashMap<>();
 		m.put(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()));
 		m.put(FeatureKeys.VALUE, expectedUserValue);
-		feature.manager().repository().updateFeature(new DefaultFeatureMetadata(feature, m), expectedUser);
+		feature.manager().repository().updateMetadata(new DefaultFeatureMetadata(feature, m), expectedUser);
 
 		// act
 		// assert

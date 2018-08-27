@@ -62,7 +62,7 @@ public class JDBCFeatureRepositoryTest {
 
 	@Test
 	public void shouldNotReturnFeatureCauseItDoesntExists() {
-		final FeatureMetadata metadata = jdbcFeatureRepository.getFeature(MyFeatures.FEATURE_ONE, null);
+		final FeatureMetadata metadata = jdbcFeatureRepository.getMetadata(MyFeatures.FEATURE_ONE, null);
 		assertNull(metadata);
 	}
 
@@ -76,10 +76,10 @@ public class JDBCFeatureRepositoryTest {
 		m.put(FeatureKeys.STATUS, expectedStatus);
 		m.put(FeatureKeys.VALUE, expectedValue);
 
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
 
-		final FeatureMetadata metadata = jdbcFeatureRepository.getFeature(MyFeatures.FEATURE_ONE, null);
+		final FeatureMetadata metadata = jdbcFeatureRepository.getMetadata(MyFeatures.FEATURE_ONE, null);
 		assertEquals(expectedStatus, metadata.get(FeatureKeys.STATUS));
 		assertEquals(expectedValue, metadata.get(FeatureKeys.VALUE));
 		assertEquals(Status.fromCode(expectedStatus), metadata.status());
@@ -96,12 +96,12 @@ public class JDBCFeatureRepositoryTest {
 		m.put(FeatureKeys.STATUS, expectedStatus);
 		m.put(FeatureKeys.VALUE, expectedValue);
 
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
 
 		m.put(FeatureKeys.VALUE, "321");
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), null);
 
-		final FeatureMetadata metadata = jdbcFeatureRepository.getFeature(MyFeatures.FEATURE_ONE, null);
+		final FeatureMetadata metadata = jdbcFeatureRepository.getMetadata(MyFeatures.FEATURE_ONE, null);
 		assertEquals(expectedStatus, metadata.get(FeatureKeys.STATUS));
 		assertEquals("321", metadata.get(FeatureKeys.VALUE));
 		assertEquals(Status.fromCode(expectedStatus), metadata.status());
@@ -119,12 +119,12 @@ public class JDBCFeatureRepositoryTest {
 		m.put(FeatureKeys.STATUS, expectedStatus);
 		m.put(FeatureKeys.VALUE, expectedValue);
 
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), expectedUser);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), expectedUser);
 
 		m.put(FeatureKeys.VALUE, "321");
-		jdbcFeatureRepository.updateFeature(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), expectedUser);
+		jdbcFeatureRepository.updateMetadata(new DefaultFeatureMetadata(MyFeatures.FEATURE_ONE, m), expectedUser);
 
-		final FeatureMetadata metadata = jdbcFeatureRepository.getFeature(MyFeatures.FEATURE_ONE, expectedUser);
+		final FeatureMetadata metadata = jdbcFeatureRepository.getMetadata(MyFeatures.FEATURE_ONE, expectedUser);
 		assertEquals(expectedStatus, metadata.get(FeatureKeys.STATUS));
 		assertEquals("321", metadata.get(FeatureKeys.VALUE));
 		assertEquals(Status.fromCode(expectedStatus), metadata.status());
