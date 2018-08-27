@@ -8,7 +8,7 @@ public interface FeatureMetadata {
 
 	Map<String, String> parameters();
 
-	void set(String k, String v);
+	FeatureMetadata set(String k, String v);
 
 	String get(String k);
 
