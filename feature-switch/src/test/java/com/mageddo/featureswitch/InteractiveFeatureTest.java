@@ -130,15 +130,82 @@ public class InteractiveFeatureTest {
 		final String expectedUser = "Maria";
 		final String expectedUserValue = "abc";
 
+		// act
 		feature.manager().userActivate(feature, expectedUser, expectedUserValue);
 
-		// act
 		// assert
 		assertFalse(feature.isActive());
-		assertTrue(feature.isActive(expectedUser));
+		assertEquals(String.valueOf(Status.RESTRICTED.getCode()), feature.metadata().get(FeatureKeys.STATUS));
 		assertNull(feature.value());
+
+		assertTrue(feature.isActive(expectedUser));
 		assertEquals(expectedUserValue, feature.value(expectedUser));
 		assertNull(feature.value("Barbara"));
+	}
+
+	@Test
+	public void mustActivateFeatureForAllUsers(){
+
+		// arrange
+		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
+		.featureRepository(new InMemoryFeatureRepository())
+		.featureMetadataProvider(new EnumFeatureMetadataProvider());
+
+		final InteractiveFeature feature = new InteractiveFeature() {
+			public String name() {
+				return "MY_FEATURE";
+			}
+			public DefaultFeatureManager manager() {
+				return featureManager;
+			}
+		};
+
+		final String expectedUser = "Maria";
+		final String expectedValue = "abc";
+
+		// act
+		feature.manager().activate(feature, expectedValue);
+
+		// assert
+		assertTrue(feature.isActive());
+		assertEquals(expectedValue, feature.value());
+
+		assertTrue(feature.isActive(expectedUser));
+		assertEquals(expectedValue, feature.value(expectedUser));
+
+	}
+
+	@Test
+	public void mustActivateForAllUsersAndKeepOriginalValue(){
+
+		// arrange
+		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
+		.featureRepository(new InMemoryFeatureRepository())
+		.featureMetadataProvider(new EnumFeatureMetadataProvider());
+
+		final InteractiveFeature feature = new InteractiveFeature() {
+			public String name() {
+				return "MY_FEATURE";
+			}
+			public DefaultFeatureManager manager() {
+				return featureManager;
+			}
+		};
+
+		final String expectedUser = "Maria";
+		final String expectedValue = "abc";
+
+		// act
+		feature.manager().activate(feature, expectedValue);
+		feature.manager().activate(feature);
+
+		// assert
+		assertTrue(feature.isActive());
+		assertEquals(expectedValue, feature.value());
+
+		assertTrue(feature.isActive(expectedUser));
+		assertEquals(expectedValue, feature.value(expectedUser));
+
 	}
 
 

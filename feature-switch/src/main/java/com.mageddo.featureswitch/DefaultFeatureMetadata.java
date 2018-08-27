@@ -15,7 +15,7 @@ public class DefaultFeatureMetadata implements FeatureMetadata {
 
 	public DefaultFeatureMetadata(Feature feature, Map<String, String> parameters) {
 		this.feature = feature;
-		this.parameters = parameters;
+		this.parameters = new HashMap<>(parameters);
 	}
 
 	@Override
