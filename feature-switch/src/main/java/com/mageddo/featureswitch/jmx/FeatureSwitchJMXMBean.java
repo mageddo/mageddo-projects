@@ -1,6 +1,7 @@
 package com.mageddo.featureswitch.jmx;
 
 public interface FeatureSwitchJMXMBean {
+
 	String getMetadata(String feature) throws Exception;
 
 	String getMetadata(String feature, String user) throws Exception;

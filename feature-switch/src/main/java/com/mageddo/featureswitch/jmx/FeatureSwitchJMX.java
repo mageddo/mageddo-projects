@@ -9,7 +9,9 @@ import com.mageddo.featureswitch.FeatureManager;
 import com.mageddo.featureswitch.FeatureMetadata;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jmx.export.annotation.ManagedOperation;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.jmx.export.annotation.ManagedResource;
+import org.springframework.stereotype.Component;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
@@ -17,6 +19,9 @@ import java.lang.management.ManagementFactory;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
 
+@Component
+@ManagedResource
+@ConditionalOnProperty(prefix = "feature-switch", name = "enabled", matchIfMissing = true)
 public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 
 	private static final Logger logger = LoggerFactory.getLogger(FeatureSwitchJMX.class);
@@ -35,19 +40,16 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 		;
 	}
 
-	@ManagedOperation
 	@Override
 	public String getMetadata(String feature) throws Exception {
 		return handle(() -> toJson(featureManager.featureMetadata(new BasicFeature(feature))));
 	}
 
-	@ManagedOperation
 	@Override
 	public String getMetadata(String feature, String user) throws Exception {
 		return handle(() -> toJson(featureManager.featureMetadata(new BasicFeature(feature), user)));
 	}
 
-	@ManagedOperation
 	@Override
 	public void activate(String name){
 		handle(() -> {
@@ -56,7 +58,6 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 		});
 	}
 
-	@ManagedOperation
 	@Override
 	public void activate(String name, String value){
 		handle(() -> {
@@ -66,7 +67,6 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 
 	}
 
-	@ManagedOperation
 	@Override
 	public void userActivate(String name, String user){
 		handle(() -> {
@@ -75,7 +75,6 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 		});
 	}
 
-	@ManagedOperation
 	@Override
 	public void userActivate(String name, String user, String value){
 		handle(() -> {
@@ -84,7 +83,6 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 		});
 	}
 
-	@ManagedOperation
 	@Override
 	public void deactivate(String name){
 		handle(() -> {
@@ -93,7 +91,6 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 		});
 	}
 
-	@ManagedOperation
 	@Override
 	public void userDeactivate(String name, String user){
 		handle(() -> {
@@ -152,5 +149,4 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 			throw e;
 		}
 	}
-
 }
