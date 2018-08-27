@@ -28,8 +28,7 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default boolean isActive(String user){
-		final FeatureMetadata metadata = metadata(user);
-		return metadata != null && metadata.status() == Status.ACTIVE;
+		return manager().isActive(this, user);
 	}
 
 	default Boolean asBoolean(){
@@ -45,34 +44,11 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default FeatureMetadata metadata(String user){
-		if(user == null){
-			return featureMetadata();
-		}
-		final FeatureMetadata metadata = featureMetadata();
-		if(metadata == null){
-			return null;
-		}
-		switch (metadata.status()){
-			case ACTIVE:
-				return metadata;
-			case INACTIVE:
-				return metadata;
-			case RESTRICTED:
-				return manager().repository().getFeature(this, user);
-		}
-		return null;
+		return manager().featureMetadata(this, user);
 	}
 
 	default FeatureMetadata featureMetadata() {
-		final FeatureMetadata metadata = manager().repository().getFeature(this, null);
-		if(metadata != null){
-			return metadata;
-		}
-		final FeatureMetadataProvider provider = manager().featureMetadataProvider();
-		if(provider == null){
-			return null;
-		}
-		return provider.getMetadata(this);
+		return manager().featureMetadata(this);
 	}
 
 	FeatureManager manager();

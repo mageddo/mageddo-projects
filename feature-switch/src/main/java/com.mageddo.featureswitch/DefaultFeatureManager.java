@@ -19,7 +19,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void activate(Feature feature) {
-		final FeatureMetadata metadata = getMetadata(feature, null)
+		final FeatureMetadata metadata = findMetadata(feature, null)
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		;
 		repository().updateFeature(metadata, null);
@@ -27,7 +27,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void activate(Feature feature, String value) {
-		final FeatureMetadata metadata = getMetadata(feature, null)
+		final FeatureMetadata metadata = findMetadata(feature, null)
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		.set(FeatureKeys.VALUE, value)
 		;
@@ -37,7 +37,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user) {
 		{
-			final FeatureMetadata metadata = getMetadata(feature, user)
+			final FeatureMetadata metadata = findMetadata(feature, user)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 
@@ -59,7 +59,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user, String value) {
 		{
-			final FeatureMetadata metadata = getMetadata(feature, user)
+			final FeatureMetadata metadata = findMetadata(feature, user)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 			repository().updateFeature(metadata, null);
@@ -94,6 +94,50 @@ public class DefaultFeatureManager implements FeatureManager {
 		repository().updateFeature(metadata, user);
 	}
 
+	@Override
+	public FeatureMetadata featureMetadata(Feature feature) {
+		final FeatureMetadata metadata = repository().getFeature(feature, null);
+		if(metadata != null){
+			return metadata;
+		}
+		final FeatureMetadataProvider provider = featureMetadataProvider();
+		if(provider == null){
+			return null;
+		}
+		return provider.getMetadata(feature);
+	}
+
+	@Override
+	public FeatureMetadata featureMetadata(Feature feature, String user) {
+		if(user == null){
+			return featureMetadata(feature);
+		}
+		final FeatureMetadata metadata = featureMetadata(feature);
+		if(metadata == null){
+			return null;
+		}
+		switch (metadata.status()){
+			case ACTIVE:
+				return metadata;
+			case INACTIVE:
+				return null;
+			case RESTRICTED:
+				return repository().getFeature(feature, user);
+		}
+		return null;
+	}
+
+	@Override
+	public boolean isActive(Feature feature) {
+		return isActive(feature, null);
+	}
+
+	@Override
+	public boolean isActive(Feature feature, String user) {
+		final FeatureMetadata metadata = featureMetadata(feature, user);
+		return metadata != null && metadata.status() == Status.ACTIVE;
+	}
+
 	public DefaultFeatureManager featureRepository(FeatureRepository featureRepository) {
 		this.featureRepository = featureRepository;
 		return this;
@@ -104,7 +148,7 @@ public class DefaultFeatureManager implements FeatureManager {
 		return this;
 	}
 
-	FeatureMetadata getMetadata(Feature feature, String user) {
+	FeatureMetadata findMetadata(Feature feature, String user) {
 		return repository().getFeatureOrDefault(feature, user, new DefaultFeatureMetadata(feature));
 	}
 }

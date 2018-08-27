@@ -43,4 +43,31 @@ public interface FeatureManager {
 	 * @see FeatureKeys
 	 */
 	void userDeactivate(Feature feature, String user);
+
+	/**
+	 * Retrieve feature metadata from Repository or the default metadata if
+	 */
+	FeatureMetadata featureMetadata(Feature feature);
+
+	/**
+	 * Retrieve feature metadata for the specified user from Repository or the default metadata.
+	 * <ol>
+	 * <li>If Feature is active must return metadata from the feature not the user feature</li>
+	 * <li>If Feature is restricted must return metadata from the user feature even if it have not any</li>
+	 * <li>If Feature is inactive must return null</li>
+	 * <li>If there is no default or Repository feature data then must return null</li>
+	 * </ol>
+	 */
+	FeatureMetadata featureMetadata(Feature feature, String user);
+
+	/**
+	 * Check if feature is active
+	 */
+	boolean isActive(Feature feature);
+
+	/**
+	 *
+	 * Check if feature is active for user, if no user is passed then will check if the feature itself is active
+	 */
+	boolean isActive(Feature feature, String user);
 }
