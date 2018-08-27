@@ -111,7 +111,7 @@ public class InteractiveFeatureTest {
 	}
 
 	@Test
-	public void x(){
+	public void mustActivateFeatureForSpecificUser(){
 
 		// arrange
 		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
@@ -130,18 +130,15 @@ public class InteractiveFeatureTest {
 		final String expectedUser = "Maria";
 		final String expectedUserValue = "abc";
 
-		final Map<String, String> m = new HashMap<>();
-		m.put(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()));
-		m.put(FeatureKeys.VALUE, expectedUserValue);
-		feature.manager().repository().updateFeature(new DefaultFeatureMetadata(feature, m), expectedUser);
+		feature.manager().userActivate(feature, expectedUser, expectedUserValue);
 
 		// act
 		// assert
 		assertFalse(feature.isActive());
 		assertTrue(feature.isActive(expectedUser));
-		assertEquals("Activated", feature.value());
+		assertNull(feature.value());
 		assertEquals(expectedUserValue, feature.value(expectedUser));
-		assertEquals(null, feature.value("Barbara"));
+		assertNull(feature.value("Barbara"));
 	}
 
 

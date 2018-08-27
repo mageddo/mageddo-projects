@@ -19,11 +19,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void activate(Feature feature) {
-		FeatureMetadata metadata = repository().getFeature(feature, null);
-		if(metadata == null){
-			metadata = new DefaultFeatureMetadata(feature);
-		}
-		metadata
+		final FeatureMetadata metadata = getMetadata(feature, null)
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		;
 		repository().updateFeature(metadata, null);
@@ -31,11 +27,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void activate(Feature feature, String value) {
-		FeatureMetadata metadata = repository().getFeature(feature, null);
-		if(metadata == null){
-			metadata = new DefaultFeatureMetadata(feature);
-		}
-		metadata
+		final FeatureMetadata metadata = getMetadata(feature, null)
 		.set(FeatureKeys.STATUS, String.valueOf(Status.ACTIVE.getCode()))
 		.set(FeatureKeys.VALUE, value)
 		;
@@ -45,11 +37,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user) {
 		{
-			FeatureMetadata metadata = repository().getFeature(feature, null);
-			if (metadata == null) {
-				metadata = new DefaultFeatureMetadata(feature);
-			}
-			metadata
+			final FeatureMetadata metadata = getMetadata(feature, user)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 
@@ -71,14 +59,9 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user, String value) {
 		{
-			FeatureMetadata metadata = repository().getFeature(feature, null);
-			if (metadata == null) {
-				metadata = new DefaultFeatureMetadata(feature);
-			}
-			metadata
+			final FeatureMetadata metadata = getMetadata(feature, user)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
-			.set(FeatureKeys.VALUE, value);
-
+			;
 			repository().updateFeature(metadata, null);
 		}
 		{
@@ -119,5 +102,9 @@ public class DefaultFeatureManager implements FeatureManager {
 	public DefaultFeatureManager featureMetadataProvider(FeatureMetadataProvider featureMetadataProvider) {
 		this.featureMetadataProvider = featureMetadataProvider;
 		return this;
+	}
+
+	FeatureMetadata getMetadata(Feature feature, String user) {
+		return repository().getFeatureOrDefault(feature, user, new DefaultFeatureMetadata(feature));
 	}
 }
