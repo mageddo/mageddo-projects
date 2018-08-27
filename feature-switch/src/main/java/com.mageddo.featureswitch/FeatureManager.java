@@ -70,4 +70,8 @@ public interface FeatureManager {
 	 * Check if feature is active for user, if no user is passed then will check if the feature itself is active
 	 */
 	boolean isActive(Feature feature, String user);
+
+	String value(Feature feature);
+
+	String value(Feature feature, String user);
 }

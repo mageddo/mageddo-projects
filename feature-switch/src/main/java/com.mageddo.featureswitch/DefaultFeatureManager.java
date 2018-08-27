@@ -138,6 +138,17 @@ public class DefaultFeatureManager implements FeatureManager {
 		return metadata != null && metadata.status() == Status.ACTIVE;
 	}
 
+	@Override
+	public String value(Feature feature) {
+		return value(feature , null);
+	}
+
+	@Override
+	public String value(Feature feature, String user) {
+		final FeatureMetadata metadata = featureMetadata(feature, user);
+		return metadata == null ? null : metadata.get(FeatureKeys.VALUE);
+	}
+
 	public DefaultFeatureManager featureRepository(FeatureRepository featureRepository) {
 		this.featureRepository = featureRepository;
 		return this;

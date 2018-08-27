@@ -19,8 +19,7 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default String value(String user){
-		final FeatureMetadata metadata = metadata(user);
-		return metadata == null ? null : metadata.get(FeatureKeys.VALUE);
+		return manager().value(this, user);
 	}
 
 	default boolean isActive(){
