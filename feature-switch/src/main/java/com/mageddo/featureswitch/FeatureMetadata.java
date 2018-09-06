@@ -17,11 +17,11 @@ public interface FeatureMetadata {
 	void remove(String k);
 
 	default Status status(){
-		return Status.fromCode(get(FeatureKeys.STATUS));
+		return Status.fromCode(get(FeatureKeys.STATUS), Status.INACTIVE);
 	}
 
 	default boolean isActive(){
-		return get(FeatureKeys.VALUE).equals(String.valueOf(Status.ACTIVE.getCode()));
+		return get(FeatureKeys.STATUS).equals(String.valueOf(Status.ACTIVE.getCode()));
 	}
 
 	default String value(){

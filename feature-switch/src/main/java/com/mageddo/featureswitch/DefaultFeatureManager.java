@@ -61,7 +61,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user, String value) {
 		{
-			final FeatureMetadata metadata = findMetadata(feature, user)
+			final FeatureMetadata metadata = findMetadata(feature, null)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 			repository().updateMetadata(metadata, null);
@@ -136,7 +136,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public boolean isActive(Feature feature, String user) {
 		final FeatureMetadata metadata = metadata(feature, user);
-		return metadata != null && metadata.status() == Status.ACTIVE;
+		return metadata.status() == Status.ACTIVE;
 	}
 
 	@Override

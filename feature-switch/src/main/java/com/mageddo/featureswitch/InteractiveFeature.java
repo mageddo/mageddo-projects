@@ -1,31 +1,29 @@
 package com.mageddo.featureswitch;
 
-import com.mageddo.featureswitch.utils.StringUtils;
-
 public interface InteractiveFeature extends Feature {
 
 	default Integer asInteger(){
-		return asInteger(null, null);
+		return metadata().asInteger(FeatureKeys.VALUE);
 	}
 
 	default Integer asInteger(Integer defaultValue){
-		return asInteger(null, defaultValue);
+		return metadata().asInteger(FeatureKeys.VALUE, defaultValue);
+	}
+
+	default Integer asInteger(String user){
+		return asInteger(user, null);
 	}
 
 	default Integer asInteger(String user, Integer defaultValue){
-		final String v = value(user);
-		if(StringUtils.isBlank(v)){
-			return defaultValue;
-		}
-		return Integer.valueOf(v);
+		return metadata(user).asInteger(FeatureKeys.VALUE, defaultValue);
 	}
 
 	default String value(){
-		return value(null);
+		return metadata().value();
 	}
 
 	default String value(String user){
-		return manager().value(this, user);
+		return metadata(user).value();
 	}
 
 	default boolean isActive(){
@@ -37,23 +35,19 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default Boolean asBoolean(){
-		return asBoolean(null, null);
+		return metadata().asBoolean(FeatureKeys.VALUE);
 	}
 
 	default Boolean asBoolean(Boolean defaultValue){
-		return asBoolean(null, defaultValue);
+		return metadata().asBoolean(FeatureKeys.VALUE, defaultValue);
 	}
 
 	default Boolean asBoolean(String user){
-		return asBoolean(user, null);
+		return metadata(user).asBoolean(FeatureKeys.VALUE, null);
 	}
 
 	default Boolean asBoolean(String user, Boolean defaultValue){
-		final String v = value(user);
-		if(StringUtils.isBlank(v)) {
-			return defaultValue;
-		}
-		return "1".equals(v);
+		return metadata(user).asBoolean(FeatureKeys.VALUE, defaultValue);
 	}
 
 	default FeatureMetadata metadata(){
