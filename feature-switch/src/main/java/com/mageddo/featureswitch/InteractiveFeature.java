@@ -18,12 +18,32 @@ public interface InteractiveFeature extends Feature {
 		return metadata(user).asInteger(FeatureKeys.VALUE, defaultValue);
 	}
 
+	default Long asLong(){
+		return metadata().asLong(FeatureKeys.VALUE);
+	}
+
+	default Long asLong(Long defaultValue){
+		return metadata().asLong(FeatureKeys.VALUE, defaultValue);
+	}
+
+	default Long asLong(String user){
+		return asLong(user, null);
+	}
+
+	default Long asLong(String user, Long defaultValue){
+		return metadata(user).asLong(FeatureKeys.VALUE, defaultValue);
+	}
+
 	default String value(){
 		return metadata().value();
 	}
 
 	default String value(String user){
 		return metadata(user).value();
+	}
+
+	default String value(String user, String defaultValue){
+		return metadata(user).value(defaultValue);
 	}
 
 	default boolean isActive(){
