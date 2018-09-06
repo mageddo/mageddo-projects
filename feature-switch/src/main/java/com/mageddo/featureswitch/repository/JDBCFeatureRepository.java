@@ -12,7 +12,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Map;
+import java.util.LinkedHashMap;
 
 public class JDBCFeatureRepository implements FeatureRepository {
 
@@ -159,7 +159,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 			}
 			return new DefaultFeatureMetadata(
 				feature,
-				mapper.readValue(rs.getString("VAL_PARAMETER"), Map.class)
+				mapper.readValue(rs.getString("VAL_PARAMETER"), LinkedHashMap.class)
 			);
 		} catch (IOException e) {
 			throw new RuntimeException(e);

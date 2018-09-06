@@ -2,6 +2,8 @@ package com.mageddo.featureswitch;
 
 import com.mageddo.featureswitch.repository.FeatureRepository;
 
+import java.util.Map;
+
 public interface FeatureManager {
 
 	FeatureRepository repository();
@@ -48,6 +50,16 @@ public interface FeatureManager {
 	 * Retrieve feature metadata from Repository or the default metadata if
 	 */
 	FeatureMetadata metadata(Feature feature);
+
+	void updateMetadata(Feature feature, Map<String, String> parameters);
+
+	/**
+	 * Merge especified parameters to the already existing
+	 * @param feature
+	 * @param user
+	 * @param parameters
+	 */
+	void updateMetadata(Feature feature, String user, Map<String, String> parameters);
 
 	/**
 	 * Retrieve feature metadata for the specified user from Repository or the default metadata.

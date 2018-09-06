@@ -4,13 +4,13 @@ import com.mageddo.featureswitch.DefaultFeatureMetadata;
 import com.mageddo.featureswitch.Feature;
 import com.mageddo.featureswitch.FeatureMetadata;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class InMemoryFeatureRepository implements FeatureRepository {
 
-	private final Map<String, Map<String, String>> featureMap = new HashMap<>();
-	private final Map<String, Map<String, String>> featureByUserMap = new HashMap<>();
+	private final Map<String, Map<String, String>> featureMap = new LinkedHashMap<>();
+	private final Map<String, Map<String, String>> featureByUserMap = new LinkedHashMap<>();
 
 	@Override
 	public FeatureMetadata getMetadata(Feature feature, String user) {

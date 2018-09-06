@@ -2,6 +2,7 @@ package com.mageddo.featureswitch;
 
 import com.mageddo.featureswitch.repository.FeatureRepository;
 
+import java.util.Map;
 import java.util.Optional;
 
 public class DefaultFeatureManager implements FeatureManager {
@@ -93,6 +94,20 @@ public class DefaultFeatureManager implements FeatureManager {
 		metadata
 		.set(FeatureKeys.STATUS, String.valueOf(Status.INACTIVE.getCode()))
 		;
+		repository().updateMetadata(metadata, user);
+	}
+
+	@Override
+	public void updateMetadata(Feature feature, Map<String, String> parameters) {
+		updateMetadata(feature, null, parameters);
+	}
+
+	@Override
+	public void updateMetadata(Feature feature, String user, Map<String, String> parameters) {
+		final FeatureMetadata metadata = metadata(feature, user);
+		for (final String k : parameters.keySet()) {
+			metadata.set(k, parameters.get(k));
+		}
 		repository().updateMetadata(metadata, user);
 	}
 

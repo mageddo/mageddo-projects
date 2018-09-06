@@ -1,6 +1,7 @@
 package com.mageddo.featureswitch.jmx;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.mageddo.featureswitch.BasicFeature;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 
 import javax.management.MBeanServer;
 import javax.management.ObjectName;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.util.LinkedHashMap;
 import java.util.function.Supplier;
@@ -46,21 +48,36 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 	}
 
 	@Override
+	public String setMetadata(String featureName, String jsonMetadata) throws Exception {
+		return handle(() -> {
+			try {
+				featureManager.updateMetadata(
+					new BasicFeature(featureName),
+					mapper.readValue(jsonMetadata, new TypeReference<LinkedHashMap<String, String>>(){})
+				);
+				return "metadata updated to " + jsonMetadata;
+			} catch (IOException e) {
+				throw new RuntimeException(e);
+			}
+		});
+	}
+
+	@Override
 	public String getMetadata(String feature, String user) throws Exception {
 		return handle(() -> toJson(featureManager.metadata(new BasicFeature(feature), user)));
 	}
 
 	@Override
-	public void activate(String name){
-		handle(() -> {
+	public String activate(String name){
+		return handle(() -> {
 			featureManager.activate(new BasicFeature(name));
 			return name + " activated";
 		});
 	}
 
 	@Override
-	public void activate(String name, String value){
-		handle(() -> {
+	public String activate(String name, String value){
+		return handle(() -> {
 			featureManager.activate(new BasicFeature(name), value);
 			return name + " activated";
 		});
@@ -68,32 +85,32 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 	}
 
 	@Override
-	public void userActivate(String name, String user){
-		handle(() -> {
+	public String userActivate(String name, String user){
+		return handle(() -> {
 			featureManager.userActivate(new BasicFeature(name), user);
 			return name + " activated to user " + user;
 		});
 	}
 
 	@Override
-	public void userActivate(String name, String user, String value){
-		handle(() -> {
+	public String userActivate(String name, String user, String value){
+		return handle(() -> {
 			featureManager.userActivate(new BasicFeature(name), user, value);
 			return name + " activated to user " + user;
 		});
 	}
 
 	@Override
-	public void deactivate(String name){
-		handle(() -> {
+	public String deactivate(String name){
+		return handle(() -> {
 			featureManager.deactivate(new BasicFeature(name));
 			return name + " deactivated";
 		});
 	}
 
 	@Override
-	public void userDeactivate(String name, String user){
-		handle(() -> {
+	public String userDeactivate(String name, String user){
+		return handle(() -> {
 			featureManager.userDeactivate(new BasicFeature(name), user);
 			return name + " deactivated to user " + user;
 		});

@@ -35,21 +35,20 @@ public class FeatureMetadataTest {
 
 
 	@Test
-	public void mustBeActiveAndReturnPersistedValues(){
+	public void mustBeActiveAndReturnPersistedValuesSameForAllUsersWhenFeatureIsActive(){
 
 		// arrange
-		final BasicFeature feature = new BasicFeature("MY_FEATURE");
 		final String expectedValue = "999";
-
+		final BasicFeature feature = new BasicFeature("MY_FEATURE");
 		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
 		.featureRepository(new InMemoryFeatureRepository())
 		;
 
 		// act
 		featureManager.activate(feature, expectedValue);
-		final FeatureMetadata metadata = featureManager.metadata(feature);
 
 		// assert
+		final FeatureMetadata metadata = featureManager.metadata(feature);
 		assertTrue(metadata.isActive());
 		assertEquals(expectedValue, metadata.value());
 		assertEquals(expectedValue, metadata.value("ABC"));
@@ -62,6 +61,20 @@ public class FeatureMetadataTest {
 
 		assertEquals(null, metadata.asInteger("k1"));
 		assertEquals(Integer.valueOf(465), metadata.asInteger("k1", 465));
+
+		final FeatureMetadata userMetadata = featureManager.metadata(feature, "user123");
+		assertTrue(userMetadata.isActive());
+		assertEquals(expectedValue, userMetadata.value());
+		assertEquals(expectedValue, userMetadata.value("ABC"));
+
+		assertEquals(false, userMetadata.asBoolean(FeatureKeys.VALUE));
+		assertEquals(false, userMetadata.asBoolean(FeatureKeys.VALUE, true));
+
+		assertEquals(Integer.valueOf(expectedValue), userMetadata.asInteger(FeatureKeys.VALUE));
+		assertEquals(Integer.valueOf(expectedValue), userMetadata.asInteger(FeatureKeys.VALUE, 10));
+
+		assertEquals(null, userMetadata.asInteger("k1"));
+		assertEquals(Integer.valueOf(465), userMetadata.asInteger("k1", 465));
 
 	}
 
