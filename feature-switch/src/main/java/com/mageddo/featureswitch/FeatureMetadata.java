@@ -21,7 +21,7 @@ public interface FeatureMetadata {
 	}
 
 	default boolean isActive(){
-		return get(FeatureKeys.STATUS).equals(String.valueOf(Status.ACTIVE.getCode()));
+		return String.valueOf(Status.ACTIVE.getCode()).equals(get(FeatureKeys.STATUS));
 	}
 
 	default String value(){
