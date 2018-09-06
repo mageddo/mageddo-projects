@@ -4,17 +4,19 @@ public interface FeatureSwitchJMXMBean {
 
 	String getMetadata(String feature) throws Exception;
 
+	String setMetadata(String featureName, String jsonMetadata) throws Exception;
+
 	String getMetadata(String feature, String user) throws Exception;
 
-	void activate(String name);
+	String activate(String name);
 
-	void activate(String name, String value);
+	String activate(String name, String value);
 
-	void userActivate(String name, String user);
+	String userActivate(String name, String user);
 
-	void userActivate(String name, String user, String value);
+	String userActivate(String name, String user, String value);
 
-	void deactivate(String name);
+	String deactivate(String name);
 
-	void userDeactivate(String name, String user);
+	String userDeactivate(String name, String user);
 }
