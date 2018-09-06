@@ -15,7 +15,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	@Override
-	public FeatureMetadataProvider featureMetadataProvider() {
+	public FeatureMetadataProvider metadataProvider() {
 		return featureMetadataProvider;
 	}
 
@@ -97,12 +97,12 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	@Override
-	public FeatureMetadata featureMetadata(Feature feature) {
+	public FeatureMetadata metadata(Feature feature) {
 		final FeatureMetadata metadata = repository().getMetadata(feature, null);
 		if(metadata != null){
 			return metadata;
 		}
-		final FeatureMetadataProvider provider = featureMetadataProvider();
+		final FeatureMetadataProvider provider = metadataProvider();
 		if(provider != null){
 			return provider.getMetadata(feature);
 		}
@@ -110,11 +110,11 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	@Override
-	public FeatureMetadata featureMetadata(Feature feature, String user) {
+	public FeatureMetadata metadata(Feature feature, String user) {
 		if(user == null){
-			return featureMetadata(feature);
+			return metadata(feature);
 		}
-		final FeatureMetadata metadata = featureMetadata(feature);
+		final FeatureMetadata metadata = metadata(feature);
 		switch (metadata.status()){
 			case ACTIVE:
 				return metadata;
@@ -135,7 +135,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public boolean isActive(Feature feature, String user) {
-		final FeatureMetadata metadata = featureMetadata(feature, user);
+		final FeatureMetadata metadata = metadata(feature, user);
 		return metadata != null && metadata.status() == Status.ACTIVE;
 	}
 
@@ -146,7 +146,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public String value(Feature feature, String user) {
-		final FeatureMetadata metadata = featureMetadata(feature, user);
+		final FeatureMetadata metadata = metadata(feature, user);
 		return metadata == null ? null : metadata.get(FeatureKeys.VALUE);
 	}
 

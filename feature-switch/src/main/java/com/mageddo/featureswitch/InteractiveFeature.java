@@ -1,15 +1,21 @@
 package com.mageddo.featureswitch;
 
+import com.mageddo.featureswitch.utils.StringUtils;
+
 public interface InteractiveFeature extends Feature {
 
 	default Integer asInteger(){
-		return asInteger(null);
+		return asInteger(null, null);
 	}
 
-	default Integer asInteger(String user){
+	default Integer asInteger(Integer defaultValue){
+		return asInteger(null, defaultValue);
+	}
+
+	default Integer asInteger(String user, Integer defaultValue){
 		final String v = value(user);
-		if(v == null){
-			return null;
+		if(StringUtils.isBlank(v)){
+			return defaultValue;
 		}
 		return Integer.valueOf(v);
 	}
@@ -31,11 +37,23 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default Boolean asBoolean(){
-		return asBoolean(null);
+		return asBoolean(null, null);
+	}
+
+	default Boolean asBoolean(Boolean defaultValue){
+		return asBoolean(null, defaultValue);
 	}
 
 	default Boolean asBoolean(String user){
-		return "1".equals(value(user));
+		return asBoolean(user, null);
+	}
+
+	default Boolean asBoolean(String user, Boolean defaultValue){
+		final String v = value(user);
+		if(StringUtils.isBlank(v)) {
+			return defaultValue;
+		}
+		return "1".equals(v);
 	}
 
 	default FeatureMetadata metadata(){
@@ -43,11 +61,7 @@ public interface InteractiveFeature extends Feature {
 	}
 
 	default FeatureMetadata metadata(String user){
-		return manager().featureMetadata(this, user);
-	}
-
-	default FeatureMetadata featureMetadata() {
-		return manager().featureMetadata(this);
+		return manager().metadata(this, user);
 	}
 
 	FeatureManager manager();

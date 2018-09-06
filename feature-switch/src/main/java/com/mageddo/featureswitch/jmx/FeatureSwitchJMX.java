@@ -42,12 +42,12 @@ public class FeatureSwitchJMX implements FeatureSwitchJMXMBean {
 
 	@Override
 	public String getMetadata(String feature) throws Exception {
-		return handle(() -> toJson(featureManager.featureMetadata(new BasicFeature(feature))));
+		return handle(() -> toJson(featureManager.metadata(new BasicFeature(feature))));
 	}
 
 	@Override
 	public String getMetadata(String feature, String user) throws Exception {
-		return handle(() -> toJson(featureManager.featureMetadata(new BasicFeature(feature), user)));
+		return handle(() -> toJson(featureManager.metadata(new BasicFeature(feature), user)));
 	}
 
 	@Override

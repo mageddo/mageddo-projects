@@ -33,13 +33,13 @@ public class InteractiveFeatureTest {
 	}
 
 	@Test
-	public void mustBeEnabledByDefaultWhenUsingDefaultsAnnotation(){
+	public void mustBeDisabledByDefaultWhenUsingDefaultsAnnotation(){
 
 		// arrange
 		final InteractiveFeature feature = MyFirstFeatures.FEATURE_ONE;
 		// act
 		// assert
-		assertTrue(feature.isActive());
+		assertFalse(feature.isActive());
 		assertEquals("Activated", feature.value());
 		assertEquals("Activated", feature.value("Maria"));
 	}

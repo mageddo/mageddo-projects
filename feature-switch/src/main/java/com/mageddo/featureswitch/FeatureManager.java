@@ -6,7 +6,7 @@ public interface FeatureManager {
 
 	FeatureRepository repository();
 
-	FeatureMetadataProvider featureMetadataProvider();
+	FeatureMetadataProvider metadataProvider();
 
 	/**
 	 * Just activate feature, should keep original feature parameters
@@ -47,7 +47,7 @@ public interface FeatureManager {
 	/**
 	 * Retrieve feature metadata from Repository or the default metadata if
 	 */
-	FeatureMetadata featureMetadata(Feature feature);
+	FeatureMetadata metadata(Feature feature);
 
 	/**
 	 * Retrieve feature metadata for the specified user from Repository or the default metadata.
@@ -58,7 +58,7 @@ public interface FeatureManager {
 	 * <li>If there is no default or Repository feature data then must return null</li>
 	 * </ol>
 	 */
-	FeatureMetadata featureMetadata(Feature feature, String user);
+	FeatureMetadata metadata(Feature feature, String user);
 
 	/**
 	 * Check if feature is active
