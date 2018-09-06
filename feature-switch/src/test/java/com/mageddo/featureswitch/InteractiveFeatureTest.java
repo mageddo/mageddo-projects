@@ -29,7 +29,7 @@ public class InteractiveFeatureTest {
 		// assert
 		assertFalse(feature.isActive());
 		assertEquals("", feature.value());
-		assertEquals(null, feature.value("Maria"));
+		assertEquals("", feature.value("Maria"));
 	}
 
 	@Test

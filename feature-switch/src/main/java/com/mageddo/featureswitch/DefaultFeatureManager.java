@@ -2,6 +2,8 @@ package com.mageddo.featureswitch;
 
 import com.mageddo.featureswitch.repository.FeatureRepository;
 
+import java.util.Optional;
+
 public class DefaultFeatureManager implements FeatureManager {
 
 	private FeatureRepository featureRepository;
@@ -101,10 +103,10 @@ public class DefaultFeatureManager implements FeatureManager {
 			return metadata;
 		}
 		final FeatureMetadataProvider provider = featureMetadataProvider();
-		if(provider == null){
-			return null;
+		if(provider != null){
+			return provider.getMetadata(feature);
 		}
-		return provider.getMetadata(feature);
+		return new DefaultFeatureMetadata(feature);
 	}
 
 	@Override
@@ -113,18 +115,17 @@ public class DefaultFeatureManager implements FeatureManager {
 			return featureMetadata(feature);
 		}
 		final FeatureMetadata metadata = featureMetadata(feature);
-		if(metadata == null){
-			return null;
-		}
 		switch (metadata.status()){
 			case ACTIVE:
 				return metadata;
 			case INACTIVE:
-				return null;
+				return metadata;
 			case RESTRICTED:
-				return repository().getMetadata(feature, user);
+				return Optional
+				.ofNullable(repository().getMetadata(feature, user))
+				.orElse(new DefaultFeatureMetadata(feature));
 		}
-		return null;
+		return metadata;
 	}
 
 	@Override
