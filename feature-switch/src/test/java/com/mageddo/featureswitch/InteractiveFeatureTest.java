@@ -11,7 +11,94 @@ import static org.junit.Assert.*;
 public class InteractiveFeatureTest {
 
 	@Test
-	public void mustBeDisabledWithNoValuesByDefault(){
+	public void mustParseValuesAndReturnDifferentValueForEveryUserUserWhenItsRestricted(){
+
+		// arrange
+		final String expectedValue = "1";
+		final String userExpectedValue = "2";
+		final String user = "Maria";
+		final String disabledUser = "Miley";
+		final DefaultFeatureManager manager = new DefaultFeatureManager()
+		.featureRepository(new InMemoryFeatureRepository())
+		.featureMetadataProvider(new EnumFeatureMetadataProvider());
+
+		final InteractiveFeature feature = new InteractiveFeature() {
+			public String name() {
+				return "MY_FEATURE";
+			}
+			public DefaultFeatureManager manager() {
+				return manager;
+			}
+		};
+
+		// act
+		manager.activate(feature, expectedValue);
+		manager.userActivate(feature, user, userExpectedValue);
+
+		// assert
+		assertFalse(feature.isActive());
+		assertEquals(Status.RESTRICTED, feature.metadata().status());
+		assertEquals(Status.ACTIVE, feature.metadata(user).status());
+		assertEquals(Status.INACTIVE, feature.metadata(disabledUser).status());
+
+		assertEquals(expectedValue, feature.value());
+		assertEquals(userExpectedValue, feature.value(user));
+
+		// validating boolean
+		assertEquals(true, feature.asBoolean());
+		assertEquals(true, feature.asBoolean(false));
+		assertEquals(false, feature.asBoolean(user));
+		assertEquals(false, feature.asBoolean(user, true));
+
+		// integer
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger());
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger(3));
+		assertEquals(Integer.valueOf(userExpectedValue), feature.asInteger(user));
+		assertEquals(Integer.valueOf(userExpectedValue), feature.asInteger(user, 4));
+	}
+
+	@Test
+	public void mustParseValuesAndReturnSameValueToAllUsersWhenItsActive(){
+
+		// arrange
+		final String expectedValue = "1";
+		final String user = "Maria";
+		final DefaultFeatureManager manager = new DefaultFeatureManager()
+		.featureRepository(new InMemoryFeatureRepository())
+		.featureMetadataProvider(new EnumFeatureMetadataProvider());
+
+		final InteractiveFeature feature = new InteractiveFeature() {
+			public String name() {
+				return "MY_FEATURE";
+			}
+			public DefaultFeatureManager manager() {
+				return manager;
+			}
+		};
+
+		// act
+		manager.activate(feature, expectedValue);
+
+		// assert
+		assertTrue(feature.isActive());
+		assertEquals(expectedValue, feature.value());
+		assertEquals(expectedValue, feature.value(user));
+
+		// validating boolean
+		assertEquals(true, feature.asBoolean());
+		assertEquals(true, feature.asBoolean(false));
+		assertEquals(true, feature.asBoolean(user));
+		assertEquals(true, feature.asBoolean(user, false));
+
+		// integer
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger());
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger(3));
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger(user));
+		assertEquals(Integer.valueOf(expectedValue), feature.asInteger(user, 4));
+	}
+
+	@Test
+	public void mustBeDisabledByDefaultAndReturnEmptyStringAsDefaultValue(){
 
 		// arrange
 		final InteractiveFeature feature = new InteractiveFeature() {
@@ -29,31 +116,30 @@ public class InteractiveFeatureTest {
 		// assert
 		assertFalse(feature.isActive());
 		assertEquals("", feature.value());
-		assertEquals(null, feature.value("Maria"));
+		assertEquals("", feature.value("Maria"));
 	}
 
 	@Test
-	public void mustBeEnabledByDefaultWhenUsingDefaultsAnnotation(){
+	public void mustBeDisabledByDefaultWhenUsingDefaultsAnnotation(){
 
 		// arrange
 		final InteractiveFeature feature = MyFirstFeatures.FEATURE_ONE;
 		// act
 		// assert
-		assertTrue(feature.isActive());
+		assertFalse(feature.isActive());
 		assertEquals("Activated", feature.value());
 		assertEquals("Activated", feature.value("Maria"));
 	}
 
 	@Test
-	public void mustBeDisabledWhenRestricted(){
-
+	public void featureMustReturnDisabledWhenItsRestrictedAndNoUserIsPassed(){
 		// arrange
 		final InteractiveFeature feature = MySecondFeatures.FEATURE_ONE;
 		// act
 		// assert
 		assertFalse(feature.isActive());
 		assertEquals("Activated", feature.value());
-		assertEquals(null, feature.value("Maria"));
+		assertEquals("", feature.value("Maria"));
 	}
 
 
@@ -107,7 +193,7 @@ public class InteractiveFeatureTest {
 		assertTrue(feature.isActive(expectedUser));
 		assertEquals("Activated", feature.value());
 		assertEquals(expectedUserValue, feature.value(expectedUser));
-		assertEquals(null, feature.value("Barbara"));
+		assertEquals("", feature.value("Barbara"));
 	}
 
 	@Test
@@ -136,11 +222,11 @@ public class InteractiveFeatureTest {
 		// assert
 		assertFalse(feature.isActive());
 		assertEquals(String.valueOf(Status.RESTRICTED.getCode()), feature.metadata().get(FeatureKeys.STATUS));
-		assertNull(feature.value());
+		assertEquals("", feature.value());
 
 		assertTrue(feature.isActive(expectedUser));
 		assertEquals(expectedUserValue, feature.value(expectedUser));
-		assertNull(feature.value("Barbara"));
+		assertEquals("", feature.value("Barbara"));
 	}
 
 	@Test

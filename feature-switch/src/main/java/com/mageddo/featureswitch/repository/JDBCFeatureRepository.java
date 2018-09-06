@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.featureswitch.DefaultFeatureMetadata;
 import com.mageddo.featureswitch.Feature;
 import com.mageddo.featureswitch.FeatureMetadata;
+import com.mageddo.featureswitch.utils.StringUtils;
 
 import javax.sql.DataSource;
 import java.io.IOException;
@@ -27,7 +28,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 		try (
 			final Connection con = dataSource.getConnection();
 		) {
-			if(isBlank(user)){
+			if(StringUtils.isBlank(user)){
 				return featureMetadata(con, feature);
 			}
 			return featureMetadata(con, feature, user);
@@ -41,7 +42,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 		try (
 			final Connection con = dataSource.getConnection();
 		) {
-			if(isBlank(user)){
+			if(StringUtils.isBlank(user)){
 				if(featureMetadata(con, featureMetadata.feature()) == null){
 					return insertFeature(con, featureMetadata);
 				}
@@ -165,7 +166,4 @@ public class JDBCFeatureRepository implements FeatureRepository {
 		}
 	}
 
-	public static boolean isBlank(String s) {
-		return s == null || s.trim().isEmpty();
-	}
 }

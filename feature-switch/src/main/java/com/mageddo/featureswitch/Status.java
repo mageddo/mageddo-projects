@@ -1,5 +1,7 @@
 package com.mageddo.featureswitch;
 
+import java.util.Objects;
+
 public enum Status {
 
 	ACTIVE(1),
@@ -17,10 +19,6 @@ public enum Status {
 		return code;
 	}
 
-	public static Status fromCode(String code) {
-		return fromCode(Integer.parseInt(code));
-	}
-
 	public static Status fromCode(int code){
 		for (Status value : values()) {
 			if(value.getCode() == code){
@@ -28,5 +26,18 @@ public enum Status {
 			}
 		}
 		return null;
+	}
+
+	public static Status fromCode(String code){
+		return fromCode(code, Status.INACTIVE);
+	}
+
+	public static Status fromCode(String code, Status defaultStatus){
+		for (Status value : values()) {
+			if(Objects.equals(code, String.valueOf(value.getCode()))){
+				return value;
+			}
+		}
+		return defaultStatus;
 	}
 }

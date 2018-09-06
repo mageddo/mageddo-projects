@@ -6,6 +6,6 @@ import java.lang.annotation.*;
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.FIELD)
 public @interface FeatureDefaults {
-	Status status() default Status.ACTIVE;
+	Status status() default Status.INACTIVE;
 	String value() default "";
 }

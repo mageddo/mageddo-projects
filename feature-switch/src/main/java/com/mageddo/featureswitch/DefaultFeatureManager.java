@@ -2,6 +2,8 @@ package com.mageddo.featureswitch;
 
 import com.mageddo.featureswitch.repository.FeatureRepository;
 
+import java.util.Optional;
+
 public class DefaultFeatureManager implements FeatureManager {
 
 	private FeatureRepository featureRepository;
@@ -13,7 +15,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	@Override
-	public FeatureMetadataProvider featureMetadataProvider() {
+	public FeatureMetadataProvider metadataProvider() {
 		return featureMetadataProvider;
 	}
 
@@ -59,7 +61,7 @@ public class DefaultFeatureManager implements FeatureManager {
 	@Override
 	public void userActivate(Feature feature, String user, String value) {
 		{
-			final FeatureMetadata metadata = findMetadata(feature, user)
+			final FeatureMetadata metadata = findMetadata(feature, null)
 			.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
 			;
 			repository().updateMetadata(metadata, null);
@@ -95,36 +97,35 @@ public class DefaultFeatureManager implements FeatureManager {
 	}
 
 	@Override
-	public FeatureMetadata featureMetadata(Feature feature) {
+	public FeatureMetadata metadata(Feature feature) {
 		final FeatureMetadata metadata = repository().getMetadata(feature, null);
 		if(metadata != null){
 			return metadata;
 		}
-		final FeatureMetadataProvider provider = featureMetadataProvider();
-		if(provider == null){
-			return null;
+		final FeatureMetadataProvider provider = metadataProvider();
+		if(provider != null){
+			return provider.getMetadata(feature);
 		}
-		return provider.getMetadata(feature);
+		return new DefaultFeatureMetadata(feature);
 	}
 
 	@Override
-	public FeatureMetadata featureMetadata(Feature feature, String user) {
+	public FeatureMetadata metadata(Feature feature, String user) {
 		if(user == null){
-			return featureMetadata(feature);
+			return metadata(feature);
 		}
-		final FeatureMetadata metadata = featureMetadata(feature);
-		if(metadata == null){
-			return null;
-		}
+		final FeatureMetadata metadata = metadata(feature);
 		switch (metadata.status()){
 			case ACTIVE:
 				return metadata;
 			case INACTIVE:
-				return null;
+				return metadata;
 			case RESTRICTED:
-				return repository().getMetadata(feature, user);
+				return Optional
+				.ofNullable(repository().getMetadata(feature, user))
+				.orElse(new DefaultFeatureMetadata(feature));
 		}
-		return null;
+		return metadata;
 	}
 
 	@Override
@@ -134,8 +135,8 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public boolean isActive(Feature feature, String user) {
-		final FeatureMetadata metadata = featureMetadata(feature, user);
-		return metadata != null && metadata.status() == Status.ACTIVE;
+		final FeatureMetadata metadata = metadata(feature, user);
+		return metadata.status() == Status.ACTIVE;
 	}
 
 	@Override
@@ -145,7 +146,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public String value(Feature feature, String user) {
-		final FeatureMetadata metadata = featureMetadata(feature, user);
+		final FeatureMetadata metadata = metadata(feature, user);
 		return metadata == null ? null : metadata.get(FeatureKeys.VALUE);
 	}
 
