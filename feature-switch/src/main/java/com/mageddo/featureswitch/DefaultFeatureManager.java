@@ -99,7 +99,7 @@ public class DefaultFeatureManager implements FeatureManager {
 
 	@Override
 	public void updateMetadata(Feature feature, Map<String, String> parameters) {
-		updateMetadata(feature, parameters);
+		updateMetadata(feature, null, parameters);
 	}
 
 	@Override
