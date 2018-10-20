@@ -83,7 +83,7 @@ public class JDBCFeatureRepository implements FeatureRepository {
 			.append("	IDT_PARAMETER, COD_USER, VAL_PARAMETER, \n")
 			.append("	DAT_CREATION, DAT_UPDATE \n")
 			.append(") VALUES ( \n")
-			.append("	(SELECT IDT_PARAMETER FROM PARAMETER WHERE NAM_PARAMETER = ?), :codUser, :valParameter, \n")
+			.append("	(SELECT IDT_PARAMETER FROM PARAMETER WHERE NAM_PARAMETER = ?), ?, ?, \n")
 			.append("	CURRENT_TIMESTAMP, CURRENT_TIMESTAMP \n")
 			.append(") \n")
 		;
