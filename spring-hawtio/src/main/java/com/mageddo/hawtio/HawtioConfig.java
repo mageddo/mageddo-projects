@@ -54,10 +54,6 @@ public class HawtioConfig implements WebMvcConfigurer {
 
 	@GetMapping(value = {"", "/"}, produces = MediaType.TEXT_HTML_VALUE)
 	public String redirect(final HttpServletRequest request) {
-		final String url = isConnectionSetup(request);
-		if (!StringUtils.isEmpty(url)) {
-			return "redirect:" + url;
-		}
 		return "redirect:" + ServletUriComponentsBuilder.fromRequest(request).path("/connection-setup").build().toString();
 	}
 
@@ -71,15 +67,6 @@ public class HawtioConfig implements WebMvcConfigurer {
 	@ResponseBody
 	public ResponseEntity actions() throws IOException {
 		return ResponseEntity.ok(new InputStreamResource(hawtioIndex.getInputStream()));
-	}
-
-	private String isConnectionSetup(HttpServletRequest request) {
-		for (Cookie cookie : request.getCookies()) {
-			if (cookie.getName().equalsIgnoreCase("jolokiaSetup")) {
-				return cookie.getValue();
-			}
-		}
-		return null;
 	}
 
 }
