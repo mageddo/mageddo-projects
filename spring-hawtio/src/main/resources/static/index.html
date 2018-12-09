@@ -1,10 +1,10 @@
 <script>
-	var url = 'http://backoffice.mageddo.com/hawtio/jmx/operations?con=jolokia';
+	var url = document.location.origin + '/hawtio/jmx/operations?con=jolokia';
 	if(localStorage.getItem('jvmConnect')){
 		console.info("connection already setted");
 		document.location = url;
 	}
 	console.info("setup new connection");
-	localStorage.setItem('jvmConnect', '[{"name":"jolokia","scheme":"http","host":"backoffice.mageddo.com","port":80,"path":"actuator/jolokia","useProxy":true,"jolokiaUrl":null,"userName":null,"password":null,"reachable":true}]')
+	localStorage.setItem('jvmConnect', '[{"name":"jolokia","scheme":"http","host":"'+ document.location.hostname +'","port":80,"path":"actuator/jolokia","useProxy":true,"jolokiaUrl":null,"userName":null,"password":null,"reachable":true}]');
 	localStorage.setItem("updateRate", '50000');
 </script>
