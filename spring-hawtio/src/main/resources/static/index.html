@@ -1,1 +1,18 @@
-:)
+<script>
+    localStorage.setItem('jvmConnect', '[{"name":"jolokia","scheme":"http","host":"backoffice.mageddo.com","port":80,"path":"actuator/jolokia","useProxy":true,"jolokiaUrl":null,"userName":null,"password":null,"reachable":true}]')
+    var url = 'http://backoffice.mageddo.com/hawtio/jmx/operations?con=jolokia';
+    createCookie('jolokiaSetup', url, 10000);
+    document.location = url;
+
+    function createCookie(name, value, days) {
+        var expires;
+        if (days) {
+            var date = new Date();
+            date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+            expires = "; expires=" + date.toGMTString();
+        } else {
+            expires = "";
+        }
+        document.cookie = name + "=" + value + expires + "; path=/";
+    }
+</script>

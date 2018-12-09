@@ -10,6 +10,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -17,6 +18,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
@@ -42,19 +44,27 @@ public class HawtioConfig implements WebMvcConfigurer {
 	}
 
 	@Bean
-	public ServletRegistrationBean servletRegistrationBean(){
+	public ServletRegistrationBean servletRegistrationBean() {
 		final ServletRegistrationBean registrator = new ServletRegistrationBean(new ProxyServlet(), "/hawtio/proxy/*");
-		if(!proxyWhitelist.isEmpty()){
+		if (!proxyWhitelist.isEmpty()) {
 			registrator.addInitParameter("proxyWhitelist", proxyWhitelist);
 		}
 		return registrator;
 	}
 
 	@GetMapping(value = {"", "/"}, produces = MediaType.TEXT_HTML_VALUE)
+	public String redirect(final HttpServletRequest request) {
+		final String url = isConnectionSetup(request);
+		if (!StringUtils.isEmpty(url)) {
+			return "redirect:" + url;
+		}
+		return "redirect:" + ServletUriComponentsBuilder.fromRequest(request).path("/connection-setup").build().toString();
+	}
+
+	@GetMapping(value = {"/connection-setup"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
-	public ResponseEntity redirect(final HttpServletRequest request) throws IOException {
+	public ResponseEntity connectionSetup() throws IOException {
 		return ResponseEntity.ok(new InputStreamResource(index.getInputStream()));
-//		return getIndexHtmlRedirect(request);
 	}
 
 	@GetMapping(value = {"/jmx/*", "/jvm/*"}, produces = MediaType.TEXT_HTML_VALUE)
@@ -63,9 +73,13 @@ public class HawtioConfig implements WebMvcConfigurer {
 		return ResponseEntity.ok(new InputStreamResource(hawtioIndex.getInputStream()));
 	}
 
-	protected String getIndexHtmlRedirect(final HttpServletRequest request) {
-		final ServletUriComponentsBuilder builder = ServletUriComponentsBuilder
-			.fromRequest(request);
-		return "redirect:" + builder.path("/index.html").build().toString();
+	private String isConnectionSetup(HttpServletRequest request) {
+		for (Cookie cookie : request.getCookies()) {
+			if (cookie.getName().equalsIgnoreCase("jolokiaSetup")) {
+				return cookie.getValue();
+			}
+		}
+		return null;
 	}
+
 }
