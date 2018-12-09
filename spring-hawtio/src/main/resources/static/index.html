@@ -7,4 +7,5 @@
 	console.info("setup new connection");
 	localStorage.setItem('jvmConnect', '[{"name":"jolokia","scheme":"http","host":"'+ document.location.hostname +'","port":80,"path":"actuator/jolokia","useProxy":true,"jolokiaUrl":null,"userName":null,"password":null,"reachable":true}]');
 	localStorage.setItem("updateRate", '50000');
+	document.location = url;
 </script>
