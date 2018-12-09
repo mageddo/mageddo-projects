@@ -26,6 +26,9 @@ import java.io.IOException;
 public class HawtioConfig implements WebMvcConfigurer {
 
 	@Value("${:classpath:/hawtio-static/index.html}")
+	private Resource hawtioIndex;
+
+	@Value("${:classpath:/static/index.html}")
 	private Resource index;
 
 	@Value("${spring.hawtio.proxyWhitelist:}")
@@ -48,14 +51,16 @@ public class HawtioConfig implements WebMvcConfigurer {
 	}
 
 	@GetMapping(value = {"", "/"}, produces = MediaType.TEXT_HTML_VALUE)
-	public String redirect(final HttpServletRequest request) {
-		return getIndexHtmlRedirect(request);
+	@ResponseBody
+	public ResponseEntity redirect(final HttpServletRequest request) throws IOException {
+		return ResponseEntity.ok(new InputStreamResource(index.getInputStream()));
+//		return getIndexHtmlRedirect(request);
 	}
 
 	@GetMapping(value = {"/jmx/*", "/jvm/*"}, produces = MediaType.TEXT_HTML_VALUE)
 	@ResponseBody
 	public ResponseEntity actions() throws IOException {
-		return ResponseEntity.ok(new InputStreamResource(index.getInputStream()));
+		return ResponseEntity.ok(new InputStreamResource(hawtioIndex.getInputStream()));
 	}
 
 	protected String getIndexHtmlRedirect(final HttpServletRequest request) {
