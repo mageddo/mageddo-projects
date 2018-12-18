@@ -7,7 +7,6 @@ allprojects {
 
 	apply plugin: 'java'
 	apply plugin: 'maven'
-	apply plugin: 'signing'
 
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
@@ -45,8 +44,11 @@ allprojects {
 		archives javadocJar, sourcesJar
 	}
 
-	signing {
-		sign configurations.archives
+	if (project.hasProperty("signing.keyId")) {
+		apply plugin: 'signing'
+		signing {
+			sign configurations.archives
+		}
 	}
 
 }
