@@ -14,7 +14,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
 
@@ -26,20 +25,20 @@ import static com.mageddo.kafka.RetryUtils.retryTemplate;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
-/**
- * Don't share this object across threads
- */
 public class MessageSenderImpl implements MessageSender {
 
 	private ThreadLocal<MessageStatus> messageStatusThreadLocal = ThreadLocal.withInitial(MessageStatus::new);
-	public static final String KAFKA_TRANSACTION = "kafka_transaction";
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 	private KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
 	public MessageSenderImpl(KafkaTemplate<String, byte[]> kafkaTemplate) {
+		this(kafkaTemplate, new ObjectMapper());
+	}
+
+	public MessageSenderImpl(KafkaTemplate<String, byte[]> kafkaTemplate, ObjectMapper objectMapper) {
 		this.kafkaTemplate = kafkaTemplate;
-		this.objectMapper = new ObjectMapper();
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -49,7 +48,7 @@ public class MessageSenderImpl implements MessageSender {
 			try {
 				return kafkaTemplate.send(r);
 			} catch (Exception e) {
-				throw new RuntimeException(e);
+				throw new KafkaPostException(e);
 			}
 		}
 
@@ -162,10 +161,6 @@ public class MessageSenderImpl implements MessageSender {
 		} catch (JsonProcessingException e) {
 			throw new RuntimeException(e);
 		}
-	}
-
-	static List<ListenableFuture> getTransactions() {
-		return (List<ListenableFuture>) TransactionSynchronizationManager.getResource(KAFKA_TRANSACTION);
 	}
 
 }
