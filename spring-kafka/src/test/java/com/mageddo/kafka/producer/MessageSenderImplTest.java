@@ -76,8 +76,6 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture).get();
-//		assertNull(MessageSenderImpl.getTransactions());
-//		assertFalse(hasResource(KAFKA_TRANSACTION));
 	}
 
 	@Test
@@ -91,8 +89,6 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture, never()).get();
-//		assertNull(MessageSenderImpl.getTransactions());
-//		assertFalse(hasResource(KAFKA_TRANSACTION));
 	}
 
 
