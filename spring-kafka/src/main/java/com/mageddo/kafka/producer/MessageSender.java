@@ -7,6 +7,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface MessageSender {
 
@@ -16,21 +17,21 @@ public interface MessageSender {
 	 */
 	ListenableFuture<SendResult> send(ProducerRecord r);
 
-	void send(String topic, Collection list);
+	List<ListenableFuture<SendResult>> send(String topic, Collection list);
 
-	void send(String topic, Versioned o);
+	ListenableFuture<SendResult> send(String topic, Versioned o);
 
-	void send(String topic, String key, Versioned o);
+	ListenableFuture<SendResult> send(String topic, String key, Versioned o);
 
-	void send(String topic, String o);
+	ListenableFuture<SendResult> send(String topic, String o);
 
-	void send(String topic, ConsumerRecord r);
+	ListenableFuture<SendResult> send(String topic, ConsumerRecord r);
 
-	void sendDLQ(ConsumerRecord r);
+	ListenableFuture<SendResult> sendDLQ(ConsumerRecord r);
 
-	void sendDLQ(String dlqTopic, ConsumerRecord r);
+	ListenableFuture<SendResult> sendDLQ(String dlqTopic, ConsumerRecord r);
 
-	void send(String topic, Object o);
+	ListenableFuture<SendResult> send(String topic, Object o);
 
-	void send(String topic, String key, Object o);
+	ListenableFuture<SendResult> send(String topic, String key, Object o);
 }
