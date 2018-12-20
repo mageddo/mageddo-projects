@@ -8,6 +8,7 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class MessageStatus {
 
+	private boolean synchronizationRegistered;
 	private AtomicInteger sent;
 	private AtomicInteger success;
 	private AtomicInteger error;
@@ -18,6 +19,7 @@ public class MessageStatus {
 		this.success = new AtomicInteger();
 		this.sent = new AtomicInteger();
 		this.lastMessageSent = new AtomicReference<>();
+		this.synchronizationRegistered = false;
 	}
 
 	public MessageStatus addSent(){
@@ -61,6 +63,15 @@ public class MessageStatus {
 
 	public MessageStatus setLastMessageSent(ListenableFuture<SendResult> lastMessageSent) {
 		this.lastMessageSent.set(lastMessageSent);
+		return this;
+	}
+
+	public boolean getSynchronizationRegistered() {
+		return synchronizationRegistered;
+	}
+
+	public MessageStatus setSynchronizationRegistered(boolean synchronizationRegistered) {
+		this.synchronizationRegistered = synchronizationRegistered;
 		return this;
 	}
 }

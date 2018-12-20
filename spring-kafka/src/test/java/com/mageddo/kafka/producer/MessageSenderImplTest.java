@@ -15,11 +15,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.SettableListenableFuture;
 
 import java.util.concurrent.Executors;
 
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
@@ -76,6 +78,27 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture).get();
+	}
+
+	@Test
+	@Transactional
+	public void mustRegisterSynchronizationOnly() throws Exception {
+
+		// arrange
+		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
+		doReturn(future).when(kafkaTemplate).send(any(ProducerRecord.class));
+		Executors.newSingleThreadScheduledExecutor().submit(() -> {
+			sleep(500);
+			future.set(new SendResult(null, null));
+		});
+
+		// act
+		conf.send();
+		conf.send();
+
+		// assert
+
+		assertEquals(1, TransactionSynchronizationManager.getSynchronizations().size());
 	}
 
 	@Test

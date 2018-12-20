@@ -54,38 +54,41 @@ public class MessageSenderImpl implements MessageSender {
 
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
-		registerSynchronization(new TransactionSynchronizationAdapter() {
-			@Override
-			public void beforeCommit(boolean readOnly) {
-				final StopWatch stopWatch = new StopWatch();
-				stopWatch.start();
-				final MessageStatus messageStatus = messageStatusThreadLocal.get();
-				try {
-					retryTemplate(30, 100, 1.5).execute(ctx -> {
+		final MessageStatus messageStatus = messageStatusThreadLocal.get();
+		if(!messageStatus.getSynchronizationRegistered()) {
+			registerSynchronization(new TransactionSynchronizationAdapter() {
+				@Override
+				public void beforeCommit(boolean readOnly) {
+					final StopWatch stopWatch = new StopWatch();
+					stopWatch.start();
+					try {
+						retryTemplate(30, 100, 1.5).execute(ctx -> {
 							if (!messageStatus.allProcessed()) {
 								try {
 									messageStatus.getLastMessageSent().get();
-								} catch (Exception e){
+								} catch (Exception e) {
 									throw new KafkaPostException(e);
 								}
 								throw new KafkaPostException(String.format("expected=%d, actual=%d", messageStatus.getSent(), messageStatus.getTotal()));
 							}
 							return null;
 						});
-					logger.info("m=send, status=committed, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
-				} catch (KafkaPostException e){
-					logger.info("m=send, status=rollback, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
-					throw e;
+						logger.info("m=send, status=committed, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
+					} catch (KafkaPostException e) {
+						logger.info("m=send, status=rollback, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
+						throw e;
+					}
 				}
-			}
 
-			@Override
-			public void afterCompletion(int status) {
-				messageStatusThreadLocal.remove();
-			}
-		});
+				@Override
+				public void afterCompletion(int status) {
+					messageStatusThreadLocal.remove();
+				}
+			});
+			messageStatus.setSynchronizationRegistered(true);
+		}
 
-		final MessageStatus messageStatus = messageStatusThreadLocal.get();
+
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
 		messageStatus.setLastMessageSent(listenableFuture);
 		messageStatus.addSent();
