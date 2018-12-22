@@ -1,7 +1,7 @@
 package com.mageddo.kafka;
 
 import com.mageddo.kafka.consumer.RetryStrategy;
-import org.springframework.kafka.listener.AbstractMessageListenerContainer.AckMode;
+import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.util.Map;
 
