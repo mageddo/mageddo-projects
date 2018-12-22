@@ -1,3 +1,5 @@
+[Here a working sample](https://github.com/mageddo/java-examples/tree/871c002/spring-kafka/src/main/java/com/mageddo/kafka)
+
 Topic Definition
 ```java
 public enum TopicEnum {
@@ -10,6 +12,16 @@ public enum TopicEnum {
 		.maxTries(10)
 		.props(map().prop("", false))
 	);
+
+	private final Topic topic;
+
+	TopicEnum(Topic topic) {
+		this.topic = topic;
+	}
+
+	public Topic getTopic() {
+		return topic;
+	}
 
 	public static class Constants {
 		public static final String USER_CREATED_FACTORY = "USER_CREATED_FACTORY";
