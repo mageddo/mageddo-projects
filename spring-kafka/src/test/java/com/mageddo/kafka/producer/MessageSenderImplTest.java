@@ -5,6 +5,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -35,7 +37,7 @@ import static org.springframework.transaction.interceptor.TransactionAspectSuppo
 @ContextConfiguration(classes = MessageSenderImplTest.Conf.class)
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @EnableTransactionManagement
-@EnableAutoConfiguration
+@SpringBootApplication(exclude = JsonbAutoConfiguration.class)
 public class MessageSenderImplTest {
 
 	@Autowired
