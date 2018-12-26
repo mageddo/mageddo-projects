@@ -33,7 +33,7 @@ public class MessageStatus {
 	}
 
 	public MessageStatus addSuccess(){
-		error.incrementAndGet();
+		success.incrementAndGet();
 		return this;
 	}
 
@@ -54,7 +54,7 @@ public class MessageStatus {
 	}
 
 	public boolean allProcessed(){
-		return getExpectToSend() == getTotal();
+		return getExpectToSend() == getSuccess();
 	}
 
 	public ListenableFuture<SendResult> getLastMessageSent() {

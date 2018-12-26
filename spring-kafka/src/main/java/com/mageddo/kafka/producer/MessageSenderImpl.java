@@ -18,6 +18,7 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -44,7 +45,6 @@ public class MessageSenderImpl implements MessageSender {
 
 	@Override
 	public ListenableFuture<SendResult> send(ProducerRecord r) {
-
 		if (!isSynchronizationActive()) {
 			try {
 				return kafkaTemplate.send(r);
@@ -63,7 +63,11 @@ public class MessageSenderImpl implements MessageSender {
 					final StopWatch stopWatch = new StopWatch();
 					stopWatch.start();
 					try {
-						retryTemplate(30, 100, 1.5, KafkaUnfinishedPostException.class).execute(ctx -> {
+						retryTemplate(Integer.MAX_VALUE, 100, 1.5, KafkaUnfinishedPostException.class).execute(ctx -> {
+
+							if(messageStatus.getError() != 0){
+								throw new KafkaPostException(String.format("an error occurred on message post, errors=%d", messageStatus.getError()));
+							}
 							if (!messageStatus.allProcessed()) {
 								try {
 									messageStatus.getLastMessageSent().get();
@@ -76,12 +80,12 @@ public class MessageSenderImpl implements MessageSender {
 						});
 						logger.info(
 							"m=send, status=committed, expectToSend={}, sent={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getTotal(), stopWatch.getTotalTimeMillis()
+							messageStatus.getExpectToSend(), messageStatus.getSuccess(), stopWatch.getTotalTimeMillis()
 						);
 					} catch (KafkaPostException e) {
 						logger.info(
 							"m=send, status=rollback, expectToSend={}, sent={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getTotal(), stopWatch.getTotalTimeMillis()
+							messageStatus.getExpectToSend(), messageStatus.getSuccess(), stopWatch.getTotalTimeMillis()
 						);
 						throw e;
 					}
@@ -94,7 +98,6 @@ public class MessageSenderImpl implements MessageSender {
 			});
 			messageStatus.setSynchronizationRegistered(true);
 		}
-
 
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
 		messageStatus.setLastMessageSent(listenableFuture);

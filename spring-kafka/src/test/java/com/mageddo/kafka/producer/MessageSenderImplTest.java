@@ -1,11 +1,13 @@
 package com.mageddo.kafka.producer;
 
 import com.mageddo.kafka.exception.KafkaPostException;
+import com.mageddo.kafka.exception.KafkaUnfinishedPostException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -30,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
@@ -90,7 +93,6 @@ public class MessageSenderImplTest {
 		verify(listenableFuture).get();
 	}
 
-
 	@Test
 	public void mustThrowExceptionAndRollbackTransactionWhenKafkaPostFail() throws Exception {
 
@@ -115,6 +117,36 @@ public class MessageSenderImplTest {
 		
 	}
 
+	@Test
+	public void mustRollbackTransactionWhenOneOfTheMessagesFailToSend() throws Exception {
+
+		// arrange
+		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
+		doThrow(TimeoutException.class).when(future).get();
+
+		SettableListenableFuture future1 = new SettableListenableFuture();
+
+		doReturn(future)
+		.doReturn(future1)
+		.when(kafkaTemplate).send(any(ProducerRecord.class));
+
+		Executors.newSingleThreadScheduledExecutor().submit(() -> {
+			sleep(500);
+			future.setException(new TimeoutException("fail to post message"));
+			future1.set(new SendResult(null, null));
+		});
+
+		// act
+		try {
+			conf.send(2);
+			fail("transaction must rollback");
+		} catch (KafkaPostException e){
+			// assert
+			assertEquals("an error occurred on message post, errors=1", e.getMessage());
+			verify(future, never()).get();
+		}
+
+	}
 
 	@Test
 	@Transactional
@@ -166,6 +198,13 @@ public class MessageSenderImplTest {
 		@Primary
 		public MessageSender messageSender(KafkaTemplate kafkaTemplate){
 			return new MessageSenderImpl(kafkaTemplate);
+		}
+
+		@Transactional
+		public void send(int times){
+			for (int i = 0; i < times; i++) {
+				messageSender.send(new ProducerRecord("myTopic", "value"));
+			}
 		}
 
 		@Transactional

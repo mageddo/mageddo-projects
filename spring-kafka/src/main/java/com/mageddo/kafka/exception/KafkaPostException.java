@@ -1,6 +1,8 @@
 package com.mageddo.kafka.exception;
 
-public class KafkaPostException extends RuntimeException {
+import org.apache.kafka.common.KafkaException;
+
+public class KafkaPostException extends KafkaException {
 
 	public KafkaPostException(Throwable cause) {
 		super(cause);
