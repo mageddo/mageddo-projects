@@ -18,7 +18,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
