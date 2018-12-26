@@ -1,6 +1,9 @@
 package com.mageddo.kafka.producer;
 
+import com.mageddo.kafka.exception.KafkaPostException;
 import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.errors.TimeoutException;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,11 +27,16 @@ import org.springframework.util.concurrent.SettableListenableFuture;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
 
@@ -82,9 +90,35 @@ public class MessageSenderImplTest {
 		verify(listenableFuture).get();
 	}
 
+
+	@Test
+	public void mustThrowExceptionAndRollbackTransactionWhenKafkaPostFail() throws Exception {
+
+		// arrange
+		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
+		doThrow(TimeoutException.class).when(future).get();
+
+		doReturn(future).when(kafkaTemplate).send(any(ProducerRecord.class));
+		Executors.newSingleThreadScheduledExecutor().submit(() -> {
+			sleep(500);
+			future.setException(new TimeoutException("fail to post message"));
+		});
+
+		// act
+		try {
+			conf.send();
+			fail("transaction must rollback");
+		} catch (KafkaPostException e){
+			// assert
+			verify(future, times(1)).get();
+		}
+		
+	}
+
+
 	@Test
 	@Transactional
-	public void mustRegisterSynchronizationOnly() throws Exception {
+	public void mustRegisterOneSynchronizationOnly() throws Exception {
 
 		// arrange
 		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());

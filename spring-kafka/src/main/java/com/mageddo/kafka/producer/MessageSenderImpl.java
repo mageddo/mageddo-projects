@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mageddo.kafka.HeaderKeys;
 import com.mageddo.kafka.KafkaUtils;
 import com.mageddo.kafka.exception.KafkaPostException;
+import com.mageddo.kafka.exception.KafkaUnfinishedPostException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -62,14 +63,14 @@ public class MessageSenderImpl implements MessageSender {
 					final StopWatch stopWatch = new StopWatch();
 					stopWatch.start();
 					try {
-						retryTemplate(30, 100, 1.5).execute(ctx -> {
+						retryTemplate(30, 100, 1.5, KafkaUnfinishedPostException.class).execute(ctx -> {
 							if (!messageStatus.allProcessed()) {
 								try {
 									messageStatus.getLastMessageSent().get();
 								} catch (Exception e) {
 									throw new KafkaPostException(e);
 								}
-								throw new KafkaPostException(String.format("expected=%d, actual=%d", messageStatus.getExpectToSend(), messageStatus.getTotal()));
+								throw new KafkaUnfinishedPostException(messageStatus);
 							}
 							return null;
 						});
