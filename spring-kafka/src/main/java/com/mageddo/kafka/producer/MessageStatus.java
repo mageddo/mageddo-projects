@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class MessageStatus {
 
 	private boolean synchronizationRegistered;
-	private AtomicInteger sent;
+	private AtomicInteger expectToSend;
 	private AtomicInteger success;
 	private AtomicInteger error;
 	private AtomicReference<ListenableFuture<SendResult>> lastMessageSent;
@@ -17,13 +17,13 @@ public class MessageStatus {
 	public MessageStatus() {
 		this.error = new AtomicInteger();
 		this.success = new AtomicInteger();
-		this.sent = new AtomicInteger();
+		this.expectToSend = new AtomicInteger();
 		this.lastMessageSent = new AtomicReference<>();
 		this.synchronizationRegistered = false;
 	}
 
-	public MessageStatus addSent(){
-		sent.incrementAndGet();
+	public MessageStatus addExpectSent(){
+		expectToSend.incrementAndGet();
 		return this;
 	}
 
@@ -37,8 +37,8 @@ public class MessageStatus {
 		return this;
 	}
 
-	public int getSent() {
-		return sent.get();
+	public int getExpectToSend() {
+		return expectToSend.get();
 	}
 
 	public int getSuccess() {
@@ -54,7 +54,7 @@ public class MessageStatus {
 	}
 
 	public boolean allProcessed(){
-		return getSent() == getTotal();
+		return getExpectToSend() == getTotal();
 	}
 
 	public ListenableFuture<SendResult> getLastMessageSent() {

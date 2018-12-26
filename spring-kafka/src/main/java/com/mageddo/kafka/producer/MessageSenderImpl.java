@@ -69,13 +69,19 @@ public class MessageSenderImpl implements MessageSender {
 								} catch (Exception e) {
 									throw new KafkaPostException(e);
 								}
-								throw new KafkaPostException(String.format("expected=%d, actual=%d", messageStatus.getSent(), messageStatus.getTotal()));
+								throw new KafkaPostException(String.format("expected=%d, actual=%d", messageStatus.getExpectToSend(), messageStatus.getTotal()));
 							}
 							return null;
 						});
-						logger.info("m=send, status=committed, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
+						logger.info(
+							"m=send, status=committed, expectToSend={}, sent={}, time={}",
+							messageStatus.getExpectToSend(), messageStatus.getTotal(), stopWatch.getTotalTimeMillis()
+						);
 					} catch (KafkaPostException e) {
-						logger.info("m=send, status=rollback, records={}, time={}", messageStatus.getSent(), stopWatch.getTotalTimeMillis());
+						logger.info(
+							"m=send, status=rollback, expectToSend={}, sent={}, time={}",
+							messageStatus.getExpectToSend(), messageStatus.getTotal(), stopWatch.getTotalTimeMillis()
+						);
 						throw e;
 					}
 				}
@@ -91,7 +97,7 @@ public class MessageSenderImpl implements MessageSender {
 
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
 		messageStatus.setLastMessageSent(listenableFuture);
-		messageStatus.addSent();
+		messageStatus.addExpectSent();
 
 		listenableFuture.addCallback(
 		it -> {
