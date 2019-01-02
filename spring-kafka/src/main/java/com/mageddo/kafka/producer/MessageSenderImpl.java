@@ -28,9 +28,9 @@ import static org.springframework.transaction.support.TransactionSynchronization
 
 public class MessageSenderImpl implements MessageSender {
 
-	private ThreadLocal<MessageStatus> messageStatusThreadLocal = ThreadLocal.withInitial(MessageStatus::new);
+	private final ThreadLocal<MessageStatus> messageStatusThreadLocal = ThreadLocal.withInitial(MessageStatus::new);
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private KafkaTemplate<String, byte[]> kafkaTemplate;
+	private final KafkaTemplate<String, byte[]> kafkaTemplate;
 	private final ObjectMapper objectMapper;
 
 	public MessageSenderImpl(KafkaTemplate<String, byte[]> kafkaTemplate) {
@@ -45,11 +45,7 @@ public class MessageSenderImpl implements MessageSender {
 	@Override
 	public ListenableFuture<SendResult> send(ProducerRecord r) {
 		if (!isSynchronizationActive()) {
-			try {
-				return kafkaTemplate.send(r);
-			} catch (Exception e) {
-				throw new KafkaPostException(e);
-			}
+			return kafkaTemplate.send(r);
 		}
 
 		final StopWatch stopWatch = new StopWatch();
@@ -133,13 +129,13 @@ public class MessageSenderImpl implements MessageSender {
 			r.headers().add(new RecordHeader(HeaderKeys.VERSION, o.version().toFullString().getBytes()));
 			return send(r);
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new KafkaPostException(e);
 		}
 	}
 
 	@Override
 	public ListenableFuture<SendResult> send(String topic, String v){
-		return send(new ProducerRecord(topic, v));
+		return send(new ProducerRecord<>(topic, v.getBytes()));
 	}
 
 	@Override
@@ -159,11 +155,7 @@ public class MessageSenderImpl implements MessageSender {
 
 	@Override
 	public ListenableFuture<SendResult> send(String topic, Object v){
-		try {
-			return send(topic, null, v);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
+		return send(topic, null, v);
 	}
 
 	@Override
@@ -171,7 +163,7 @@ public class MessageSenderImpl implements MessageSender {
 		try {
 			return send(new ProducerRecord<>(topic, key, objectMapper.writeValueAsBytes(v)));
 		} catch (JsonProcessingException e) {
-			throw new RuntimeException(e);
+			throw new KafkaPostException(e);
 		}
 	}
 
