@@ -78,13 +78,13 @@ public class MessageSenderImpl implements MessageSender {
 							return null;
 						});
 						logger.info(
-							"m=send, status=committed, expectToSend={}, sent={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getSuccess(), stopWatch.getTotalTimeMillis()
+							"m=send, status=committed, expectToSend={}, sent={}, error={}, time={}",
+							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
 						);
 					} catch (KafkaPostException e) {
 						logger.info(
-							"m=send, status=rollback, expectToSend={}, sent={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getSuccess(), stopWatch.getTotalTimeMillis()
+							"m=send, status=rollback, expectToSend={}, sent={}, error={}, time={}",
+							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
 						);
 						throw e;
 					}
