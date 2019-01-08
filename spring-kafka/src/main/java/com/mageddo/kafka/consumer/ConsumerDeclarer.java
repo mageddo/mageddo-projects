@@ -13,6 +13,7 @@ import org.springframework.retry.backoff.BackOffPolicy;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
+import org.springframework.scheduling.Trigger;
 import org.springframework.scheduling.annotation.SchedulingConfigurer;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
@@ -23,16 +24,26 @@ import java.util.List;
 public class ConsumerDeclarer implements SchedulingConfigurer {
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
-	private ConfigurableBeanFactory beanFactory;
-	private KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
-	private KafkaProperties kafkaProperties;
-	private boolean autostartup;
+	private final ConfigurableBeanFactory beanFactory;
+	private final KafkaListenerEndpointRegistry kafkaListenerEndpointRegistry;
+	private final KafkaProperties kafkaProperties;
+	private final boolean autostartup;
+
+	/**
+	 * Trigger used to setup consumers
+	 */
+	private final Trigger trigger;
 
 	public ConsumerDeclarer(ConfigurableBeanFactory beanFactory, KafkaProperties kafkaProperties, boolean autostartup) {
+		this(beanFactory, kafkaProperties, autostartup, new CronTrigger("0 0/1 * * * *"));
+	}
+
+	public ConsumerDeclarer(ConfigurableBeanFactory beanFactory, KafkaProperties kafkaProperties, boolean autostartup, Trigger trigger) {
 		this.beanFactory = beanFactory;
 		this.kafkaProperties = kafkaProperties;
 		this.autostartup = autostartup;
 		this.kafkaListenerEndpointRegistry = beanFactory.getBean(KafkaListenerEndpointRegistry.class);
+		this.trigger = trigger;
 	}
 
 	public void declare(final TopicDefinition... topics) {
@@ -94,7 +105,7 @@ public class ConsumerDeclarer implements SchedulingConfigurer {
 			} catch (Exception e){
 				logger.warn("status=consumer-declare-failed, msg={}", e.getMessage(), e);
 			}
-		}, new CronTrigger("0 0/1 * * * *"));
+		}, trigger);
 	}
 
 	private RetryTemplate getRetryTemplate(BackOffPolicy policy, RetryPolicy retryPolicy) {
