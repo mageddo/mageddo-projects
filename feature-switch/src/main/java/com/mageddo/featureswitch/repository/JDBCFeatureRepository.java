@@ -1,9 +1,7 @@
 package com.mageddo.featureswitch.repository;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mageddo.featureswitch.DefaultFeatureMetadata;
-import com.mageddo.featureswitch.Feature;
-import com.mageddo.featureswitch.FeatureMetadata;
+import com.mageddo.featureswitch.*;
 import com.mageddo.featureswitch.utils.StringUtils;
 
 import javax.sql.DataSource;
@@ -49,7 +47,11 @@ public class JDBCFeatureRepository implements FeatureRepository {
 				return updateFeature(con, featureMetadata);
 			}
 			if(featureMetadata(con, featureMetadata.feature()) == null){
-				return insertFeature(con, featureMetadata);
+				insertFeature(
+					con,
+					new DefaultFeatureMetadata(featureMetadata.feature())
+						.set(FeatureKeys.STATUS, String.valueOf(Status.RESTRICTED.getCode()))
+				);
 			}
 			if(featureMetadata(con, featureMetadata.feature(), user) == null){
 				return insertFeature(con, featureMetadata, user);

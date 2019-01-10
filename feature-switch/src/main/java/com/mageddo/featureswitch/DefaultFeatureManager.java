@@ -138,7 +138,10 @@ public class DefaultFeatureManager implements FeatureManager {
 			case RESTRICTED:
 				return Optional
 				.ofNullable(repository().getMetadata(feature, user))
-				.orElse(new DefaultFeatureMetadata(feature));
+				.orElse(
+					new DefaultFeatureMetadata(feature)
+					.set(FeatureKeys.STATUS, String.valueOf(Status.INACTIVE.getCode()))
+				);
 		}
 		return metadata;
 	}

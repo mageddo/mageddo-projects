@@ -11,8 +11,7 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 public class JDBCFeatureRepositoryTest {
 
@@ -128,12 +127,39 @@ public class JDBCFeatureRepositoryTest {
 		assertEquals(expectedStatus, metadata.get(FeatureKeys.STATUS));
 		assertEquals("321", metadata.get(FeatureKeys.VALUE));
 		assertEquals(Status.fromCode(expectedStatus), metadata.status());
+	}
 
+	@Test
+	public void shouldInsertAsRestrictedAndActivateForUser(){
+		// arrange
+		final String expectedValue = "999";
+		final String expectedValue2 = "100";
+		final String userId = "46546";
+		final String user2Id = "46547";
+		final MyFeatures feature = MyFeatures.RESTRICTED_FEATURE;
+		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
+			.featureRepository(jdbcFeatureRepository)
+			.featureMetadataProvider(new EnumFeatureMetadataProvider())
+			;
+
+		// act
+		featureManager.updateMetadata(feature, userId, Map.of(FeatureKeys.VALUE, expectedValue));
+		featureManager.updateMetadata(feature, user2Id, Map.of(FeatureKeys.VALUE, expectedValue2));
+
+		// assert
+		assertEquals(expectedValue, featureManager.metadata(feature, userId).value());
+		assertEquals(expectedValue2, featureManager.metadata(feature, user2Id).value());
+		assertEquals("", featureManager.metadata(feature, "notExistentUser").value());
+		assertFalse(featureManager.isActive(feature));
 	}
 
 	enum MyFeatures implements InteractiveFeature {
 
-		FEATURE_ONE;
+		FEATURE_ONE,
+
+		@FeatureDefaults(status = Status.RESTRICTED)
+		RESTRICTED_FEATURE,
+		;
 
 		@Override
 		public FeatureManager manager() {

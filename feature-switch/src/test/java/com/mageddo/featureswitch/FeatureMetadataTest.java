@@ -3,6 +3,8 @@ package com.mageddo.featureswitch;
 import com.mageddo.featureswitch.repository.InMemoryFeatureRepository;
 import org.junit.Test;
 
+import java.util.Map;
+
 import static org.junit.Assert.*;
 
 public class FeatureMetadataTest {
@@ -32,7 +34,6 @@ public class FeatureMetadataTest {
 		assertEquals(Integer.valueOf(10), metadata.asInteger(FeatureKeys.VALUE, 10));
 
 	}
-
 
 	@Test
 	public void mustBeActiveAndReturnPersistedValuesSameForAllUsersWhenFeatureIsActive(){
@@ -76,6 +77,31 @@ public class FeatureMetadataTest {
 		assertEquals(null, userMetadata.asInteger("k1"));
 		assertEquals(Integer.valueOf(465), userMetadata.asInteger("k1", 465));
 
+	}
+
+	@Test
+	public void mustInsertFeatureOnRepositoryRestrictedByUser(){
+		// arrange
+		final String expectedValue = "999";
+		final String userId = "46546";
+		final EnumFeature feature = EnumFeature.MY_FEATURE;
+		final DefaultFeatureManager featureManager = new DefaultFeatureManager()
+			.featureRepository(new InMemoryFeatureRepository())
+			.featureMetadataProvider(new EnumFeatureMetadataProvider())
+			;
+
+		// act
+		featureManager.updateMetadata(feature, userId, Map.of(FeatureKeys.VALUE, expectedValue));
+
+		// assert
+		assertEquals(expectedValue, featureManager.metadata(feature, userId).value());
+		assertEquals("", featureManager.metadata(feature, "notExistentUser").value());
+		assertFalse(featureManager.isActive(feature));
+	}
+
+	public enum EnumFeature implements Feature {
+		@FeatureDefaults(status = Status.RESTRICTED)
+		MY_FEATURE
 	}
 
 }
