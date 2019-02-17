@@ -9,18 +9,41 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.mageddo.common.jackson.converters.MonetaryConverter;
+import com.mageddo.common.monetary.Monetary;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
 
 public final class JsonUtils {
 
-	private JsonUtils() {
+	public static final String PROVIDER_PATH = "/META-INF/services/com.mageddo.common.jackson.Providers";
+
+
+	private static ObjectMapper instance;
+	private static ObjectMapper prettyInstance;
+	private static ObjectMapper noAutoCloseableInstance;
+
+	static {
+		try {
+			try(final BufferedReader br = new BufferedReader(new InputStreamReader(JsonUtils.class.getResourceAsStream(PROVIDER_PATH)))) {
+				final String line = br.readLine();
+				if(line == null){
+					setInstance(objectMapper());
+				} else {
+					final Class<JsonConfig> clazz = (Class<JsonConfig>) Class.forName(line);
+					setInstance(clazz.getDeclaredConstructor().newInstance().objectMapper());
+				}
+			}
+		} catch (IOException e){
+			throw new UncheckedIOException(e);
+		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
-	private static ObjectMapper instance = objectMapper();
-	private static ObjectMapper prettyInstance = prettyInstance(objectMapper());
-	private static ObjectMapper noAutoCloseableInstance = noAutoCloseable(objectMapper());
+	private JsonUtils() {
+	}
 
 	public static ObjectMapper instance(){
 		return instance;
@@ -43,14 +66,20 @@ public final class JsonUtils {
 	}
 
 	public static ObjectMapper objectMapper() {
-		final SimpleModule m = new SimpleModule();
+		final SimpleModule m = new SimpleModule()
+			.addDeserializer(Monetary.class, new MonetaryConverter.MonetaryJsonDeserializer())
+			.addSerializer(Monetary.class, new MonetaryConverter.MonetaryJsonSerializer())
+		;
 		return new ObjectMapper()
 			.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 			.registerModule(m);
 	}
 
-	public static void setInstance(ObjectMapper objectMapper){
+	public static ObjectMapper setInstance(ObjectMapper objectMapper){
 		instance = objectMapper;
+		prettyInstance = prettyInstance(instance.copy());
+		noAutoCloseableInstance = noAutoCloseable(instance.copy());
+		return instance;
 	}
 
 	public static ObjectMapper setup(boolean production) {

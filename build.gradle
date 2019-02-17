@@ -124,6 +124,8 @@ project(':commons'){
 		provided group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.4.RELEASE'
 		provided group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.8'
 		provided group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.6.2.Final'
+		provided group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.6.2.Final'
+		provided group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.1.1.RELEASE'
 	}
 }
 
