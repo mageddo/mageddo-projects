@@ -13,7 +13,10 @@ subprojects {
 	sourceCompatibility = JavaVersion.VERSION_1_8
 	targetCompatibility = JavaVersion.VERSION_1_8
 
-	group 'com.mageddo'
+	compileTestJava {
+		sourceCompatibility = JavaVersion.VERSION_11
+		targetCompatibility = JavaVersion.VERSION_11
+	}
 
 	configurations {
 		provided
@@ -100,7 +103,6 @@ subprojects {
 
 project(':spring-profile'){
 
-	sourceCompatibility = JavaVersion.VERSION_1_8
 	archivesBaseName = 'spring-profile'
 
 	dependencies {
@@ -128,13 +130,6 @@ project(':commons'){
 project(':feature-switch'){
 	archivesBaseName = 'feature-switch'
 	version '1.4.3'
-	sourceCompatibility = JavaVersion.VERSION_1_8
-	targetCompatibility = JavaVersion.VERSION_1_8
-
-	compileTestJava {
-		sourceCompatibility = JavaVersion.VERSION_11
-		targetCompatibility = JavaVersion.VERSION_11
-	}
 
 	dependencies {
 
