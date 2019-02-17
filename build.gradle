@@ -118,7 +118,6 @@ project(':spring-profile'){
 
 project(':commons'){
 	archivesBaseName = 'commons'
-	version '1.0.0'
 	dependencies {
 		provided group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
 		provided group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.4.RELEASE'

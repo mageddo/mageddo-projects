@@ -26,30 +26,38 @@ public final class JsonUtils {
 
 	static {
 		try {
-			try(final BufferedReader br = new BufferedReader(new InputStreamReader(JsonUtils.class.getResourceAsStream(PROVIDER_PATH)))) {
-				final String line = br.readLine();
-				if(line == null){
-					setInstance(objectMapper());
-				} else {
-					final Class<JsonConfig> clazz = (Class<JsonConfig>) Class.forName(line);
-					setInstance(clazz.getDeclaredConstructor().newInstance().objectMapper());
-				}
+			final String line = readFirstLine();
+			if (line == null) {
+				setInstance(objectMapper());
+			} else {
+				final Class<JsonConfig> clazz = (Class<JsonConfig>) Class.forName(line);
+				setInstance(clazz.getDeclaredConstructor().newInstance().objectMapper());
 			}
-		} catch (IOException e){
-			throw new UncheckedIOException(e);
 		} catch (ClassNotFoundException | IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
 			throw new RuntimeException(e);
+		}
+	}
+
+	static String readFirstLine() {
+		final InputStream in = JsonUtils.class.getResourceAsStream(PROVIDER_PATH);
+		if (in == null) {
+			return null;
+		}
+		try (final BufferedReader br = new BufferedReader(new InputStreamReader(in))) {
+			return br.readLine();
+		} catch (IOException e) {
+			throw new UncheckedIOException(e);
 		}
 	}
 
 	private JsonUtils() {
 	}
 
-	public static ObjectMapper instance(){
+	public static ObjectMapper instance() {
 		return instance;
 	}
 
-	public static ObjectMapper prettyInstance(){
+	public static ObjectMapper prettyInstance() {
 		return prettyInstance;
 	}
 
@@ -57,7 +65,7 @@ public final class JsonUtils {
 		return noAutoCloseableInstance;
 	}
 
-	public static ObjectMapper noAutoCloseable(ObjectMapper objectMapper){
+	public static ObjectMapper noAutoCloseable(ObjectMapper objectMapper) {
 		return objectMapper.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
 	}
 
@@ -68,14 +76,13 @@ public final class JsonUtils {
 	public static ObjectMapper objectMapper() {
 		final SimpleModule m = new SimpleModule()
 			.addDeserializer(Monetary.class, new MonetaryConverter.MonetaryJsonDeserializer())
-			.addSerializer(Monetary.class, new MonetaryConverter.MonetaryJsonSerializer())
-		;
+			.addSerializer(Monetary.class, new MonetaryConverter.MonetaryJsonSerializer());
 		return new ObjectMapper()
 			.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES)
 			.registerModule(m);
 	}
 
-	public static ObjectMapper setInstance(ObjectMapper objectMapper){
+	public static ObjectMapper setInstance(ObjectMapper objectMapper) {
 		instance = objectMapper;
 		prettyInstance = prettyInstance(instance.copy());
 		noAutoCloseableInstance = noAutoCloseable(instance.copy());
@@ -83,7 +90,7 @@ public final class JsonUtils {
 	}
 
 	public static ObjectMapper setup(boolean production) {
-		if(production){
+		if (production) {
 			instance.disable(SerializationFeature.INDENT_OUTPUT);
 		}
 		return instance;
@@ -97,7 +104,7 @@ public final class JsonUtils {
 		}
 	}
 
-	public static JsonNode readTree(String o){
+	public static JsonNode readTree(String o) {
 		try {
 			return instance.readTree(o);
 		} catch (IOException e) {
@@ -113,7 +120,7 @@ public final class JsonUtils {
 		}
 	}
 
-	public static<T> T readValue(String value, TypeReference<T> t) {
+	public static <T> T readValue(String value, TypeReference<T> t) {
 		try {
 			return instance.readValue(value, t);
 		} catch (IOException e) {
@@ -121,7 +128,7 @@ public final class JsonUtils {
 		}
 	}
 
-	public static<T> T readValue(JsonParser jsonParser, TypeReference<T> t) {
+	public static <T> T readValue(JsonParser jsonParser, TypeReference<T> t) {
 		try {
 			return instance.readValue(jsonParser, t);
 		} catch (IOException e) {
@@ -129,15 +136,15 @@ public final class JsonUtils {
 		}
 	}
 
-	public static String prettify(String json){
+	public static String prettify(String json) {
 		try {
 			return prettyInstance.writeValueAsString(instance.readTree(json));
-		} catch (IOException e){
+		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static <T>T readValue(InputStream in, Class<T> o) {
+	public static <T> T readValue(InputStream in, Class<T> o) {
 		try {
 			return instance.readValue(in, o);
 		} catch (IOException e) {
@@ -145,7 +152,7 @@ public final class JsonUtils {
 		}
 	}
 
-	public static <T>T readValue(JsonParser data, Class<T> clazz) {
+	public static <T> T readValue(JsonParser data, Class<T> clazz) {
 		try {
 			return instance.readValue(data, clazz);
 		} catch (IOException e) {
