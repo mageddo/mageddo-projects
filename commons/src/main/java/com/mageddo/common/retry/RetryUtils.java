@@ -1,5 +1,7 @@
 package com.mageddo.common.retry;
 
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.retry.RetryContext;
 import org.springframework.retry.backoff.ExponentialBackOffPolicy;
 import org.springframework.retry.policy.SimpleRetryPolicy;
 import org.springframework.retry.support.RetryTemplate;
@@ -32,6 +34,14 @@ public final class RetryUtils {
 		backOffPolicy.setMaxInterval((long) (delay.toMillis() * maxAttempts * multiplier));
 		template.setBackOffPolicy(backOffPolicy);
 		return template;
+	}
+
+	public static String format(RetryContext ctx) {
+		return String.format(
+			"retry=%s, lastError=%s",
+			ctx.getRetryCount(),
+			ctx.getLastThrowable() != null ? ExceptionUtils.getStackTrace(ctx.getLastThrowable()) : null
+		);
 	}
 
 }

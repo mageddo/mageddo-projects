@@ -125,6 +125,7 @@ project(':commons'){
 		provided group: 'org.jboss.resteasy', name: 'resteasy-client', version: '3.6.2.Final'
 		provided group: 'org.jboss.resteasy', name: 'resteasy-jackson2-provider', version: '3.6.2.Final'
 		provided group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: '2.1.1.RELEASE'
+		provided group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
 	}
 }
 
