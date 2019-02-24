@@ -3,11 +3,49 @@ plugins {
 	id 'maven'
 }
 
+repositories {
+	mavenLocal()
+	mavenCentral()
+}
+
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
-dependencies {
-	dependencies {
-		compileOnly files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
+println(">>>>>>>>> is java 6 ${JavaVersion.current()}")
+
+sourceSets {
+	integrationTest {
+		java {
+			srcDir 'src/integrationTest/java'
+		}
+		resources {
+			srcDir 'src/integrationTest/resources'
+		}
+		compileClasspath += sourceSets.test.runtimeClasspath
+		runtimeClasspath += sourceSets.test.runtimeClasspath
 	}
 }
+
+dependencies {
+	dependencies {
+		compile files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
+		testCompile 'junit:junit:4.12'
+		testCompile group: 'net.openhft', name: 'compiler', version: '2.3.4'
+		testCompile group: 'org.mdkt.compiler', name: 'InMemoryJavaCompiler', version: '1.3.0'
+	}
+}
+
+task integrationTest(type: Test) {
+	description = "Runs Integration Tests"
+	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+	classpath += sourceSets.integrationTest.runtimeClasspath
+//	outputs.upToDateWhen {
+//		false
+//	}
+//	include '**/**Test*'
+//	classpath = sourceSets.integrationTest.runtimeClasspath
+//	testClassesDirs = sourceSets.integrationTest.output.classesDirs
+}
+
+
+build.finalizedBy(integrationTest)

@@ -18,7 +18,7 @@ import javax.tools.JavaFileObject;
 import java.util.Set;
 
 @SupportedAnnotationTypes(References.RAW_STRING_REF)
-@SupportedSourceVersion(SourceVersion.RELEASE_6)
+@SupportedSourceVersion(SourceVersion.RELEASE_8)
 public class RawStringAnnotationProcessor extends AbstractProcessor {
 
 	private Trees trees;
