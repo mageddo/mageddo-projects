@@ -3,8 +3,9 @@ package com.mageddo.rawstringliterals;
 import org.junit.Test;
 import org.mdkt.compiler.InMemoryJavaCompiler;
 
-import static java.lang.reflect.Modifier.isFinal;
-import static org.junit.Assert.assertFalse;
+import java.lang.reflect.Field;
+
+import static org.junit.Assert.assertEquals;
 
 public class RawStringTest {
 
@@ -16,25 +17,25 @@ public class RawStringTest {
 		final StringBuilder sourceCode = new StringBuilder()
 			.append("import com.mageddo.rawstringliterals.RawString; \n")
 			.append(" \n")
-			.append("@RawString \n")
+//			.append("@RawString \n")
 			.append("public class TestClass { \n")
 			.append(" \n")
-			.append("	private String name; \n")
+
+			.append("/** Hello There */ \n")
+			.append("@RawString \n")
+			.append("	private static String name; \n")
 			.append(" \n")
-			.append("	public TestClass(String name) { \n")
-			.append("		this.name = name; \n")
-			.append("	} \n")
-			.append(" \n")
-			.append("	public String getName() { \n")
-			.append("		return name; \n")
-			.append("	} \n")
 			.append("} \n")
 			.append(" \n");
 
 		// act
 		final Class clazz = compiler.compile("TestClass", sourceCode.toString());
 
+		final Field nameField = clazz.getDeclaredField("name");
+		Object o = clazz.newInstance();
+		nameField.setAccessible(true);
+
 		// assert
-		assertFalse(isFinal(clazz.getDeclaredField("name").getModifiers()));
+		assertEquals("Hello There", String.valueOf(nameField.get(o)).trim());
 	}
 }
