@@ -1,0 +1,13 @@
+plugins {
+	id 'java'
+	id 'maven'
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_6
+targetCompatibility = JavaVersion.VERSION_1_6
+
+dependencies {
+	dependencies {
+		compileOnly files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
+	}
+}
