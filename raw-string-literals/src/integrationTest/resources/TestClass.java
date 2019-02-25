@@ -1,4 +1,7 @@
 import com.mageddo.rawstringliterals.RawString;
+import com.mageddo.rawstringliterals.RawStrings;
+
+import static com.mageddo.rawstringliterals.RawStrings.lateInit;
 
 @RawString("type")
 public class TestClass {
@@ -10,12 +13,12 @@ public class TestClass {
 	public String sayHello(){
 
 		/*
-		 SELECT
-		 	NAME, AGE
-		 FROM CUSTOMER
+			SELECT
+				NAME, AGE
+			FROM CUSTOMER
 		*/
 		@RawString("local variable")
-		final String word = "Hey";
+		final String word = lateInit();
 		return word;
 	}
 
