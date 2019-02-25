@@ -12,7 +12,7 @@ import static org.junit.Assert.assertEquals;
 public class RawStringTest {
 
 	@Test
-	public void shouldCompileAndChangeFieldModifierToFinal() throws Exception {
+	public void shouldCompileAndAndSetCommentTextToVariableValue() throws Exception {
 
 		// arrange
 		final InMemoryJavaCompiler compiler = InMemoryJavaCompiler.newInstance();

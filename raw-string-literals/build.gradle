@@ -3,6 +3,10 @@ plugins {
 	id 'maven'
 }
 
+if(JavaVersion.current() != JavaVersion.VERSION_1_8){
+	throw new UnsupportedOperationException("Please use JDK 8 to compile this project")
+}
+
 repositories {
 	mavenLocal()
 	mavenCentral()
@@ -24,57 +28,27 @@ sourceSets {
 	}
 }
 
-compileJava {
-	doFirst {
-		options.compilerArgs = [
-//			'--module-path', classpath.asPath,
-//			'--add-modules', 'jdk.compiler',
-//			'--add-modules', 'jdk.compiler/com.sun.source.util=ALL-UNNAMED',
-//			'--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
-//			'--add-exports', 'jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
-//			'--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-//			'--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED'
-		]
-	}
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
 }
 
-//javadoc {
-//	doFirst {
-//		compilecompilerArgs = [
-//			'--module-path', classpath.asPath,
-//'--add-modules', 'jdk.compiler',
-//			'--add-modules', 'jdk.compiler/com.sun.source.util=ALL-UNNAMED',
-//'--add-exports', 'jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED',
-//'--add-exports', 'jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED',
-//'--add-exports', 'jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED',
-//'--add-exports', 'jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED'
-//		]
-//	}
-//}
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
 
-//task javadocJar(type: Jar) {
-//	classifier = 'javadoc'
-//	from javadoc
-//}
-//
-//task sourcesJar(type: Jar) {
-//	classifier = 'sources'
-//	from sourceSets.main.allSource
-//}
-//
-//artifacts {
-//	archives javadocJar, sourcesJar
-//}
+artifacts {
+	archives javadocJar, sourcesJar
+}
 
 
 dependencies {
 	dependencies {
 
-//		def tools = files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
-//		implementation tools
-		implementation files('/opt/jdk-7/lib/tools.jar')
-//		implementation('com.github.javaparser:javaparser-core:2.5.1') // java 8
-		implementation('com.github.javaparser:javaparser-core:2.4.0') // java 6 - 7
+		def tools = files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
+		implementation tools
+		implementation('com.github.javaparser:javaparser-core:2.4.0')
 		implementation('org.apache.commons:commons-lang3:3.8.1')
 
 		testCompile 'junit:junit:4.12'

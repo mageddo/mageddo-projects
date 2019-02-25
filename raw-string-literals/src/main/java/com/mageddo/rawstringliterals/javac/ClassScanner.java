@@ -19,7 +19,7 @@ import java.io.IOException;
 import java.io.Reader;
 import java.util.List;
 
-public final class Java6ClassScanner {
+public final class ClassScanner {
 
 	public static String findVarValue(ClassSymbol classSymbol, String methodName, String varName, String annotationName) {
 		try {

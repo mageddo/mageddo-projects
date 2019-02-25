@@ -1,7 +1,6 @@
 package com.mageddo.rawstringliterals;
 
-import com.mageddo.rawstringliterals.javac.Java6ClassScanner;
-import com.sun.source.tree.AnnotationTree;
+import com.mageddo.rawstringliterals.javac.ClassScanner;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TreePath;
@@ -38,12 +37,6 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 			}
 			compilationUnit.accept(new TreeTranslator() {
 				@Override
-				public void visitAnnotation(JCAnnotation jcAnnotation) {
-					System.out.println(jcAnnotation.getAnnotationType());
-					super.visitAnnotation(jcAnnotation);
-				}
-
-				@Override
 				public void visitMethodDef(JCTree.JCMethodDecl jcMethodDecl) {
 					super.visitMethodDef(jcMethodDecl);
 					for (final JCStatement statement : jcMethodDecl.getBody().getStatements()) {
@@ -56,7 +49,7 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 								final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
 								final String annotationName = RawString.class.getSimpleName();
 								if(annotationType.getName().toString().equals(annotationName)){
-									final String varValue = Java6ClassScanner.findVarValue(
+									final String varValue = ClassScanner.findVarValue(
 										classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
 									);
 									variableDecl.init = maker.Literal(varValue);
@@ -68,11 +61,6 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 			});
 		}
 		return trees;
-	}
-
-	@Override
-	public Object visitAnnotation(AnnotationTree annotationTree, CompilationUnitTree compilationUnitTree) {
-		return super.visitAnnotation(annotationTree, compilationUnitTree);
 	}
 
 	public void scan() {
