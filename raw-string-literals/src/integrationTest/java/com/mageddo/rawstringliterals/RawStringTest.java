@@ -26,8 +26,7 @@ public class RawStringTest {
 		final Method method = clazz.getMethod("sayHello");
 		Object o = clazz.newInstance();
 
-		// assert	convertToFixedWidth
-		String value = String.valueOf(method.invoke(o)).trim();
+		String value = String.valueOf(method.invoke(o));
 
 		assertEquals("SELECT\n\tNAME, AGE\nFROM CUSTOMER\n", align(value));
 
