@@ -35,6 +35,8 @@ dependencies {
 		testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
 //		compile 'com.github.javaparser:javaparser-symbol-solver-core:3.13.1'
 		compile 'com.github.javaparser:javaparser-core:2.5.1'
+		compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.8.1'
+
 
 	}
 }

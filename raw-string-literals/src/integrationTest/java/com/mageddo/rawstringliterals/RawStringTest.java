@@ -6,6 +6,7 @@ import org.mdkt.compiler.InMemoryJavaCompiler;
 
 import java.lang.reflect.Method;
 
+import static com.mageddo.rawstringliterals.commons.StringUtils.align;
 import static org.junit.Assert.assertEquals;
 
 public class RawStringTest {
@@ -25,7 +26,11 @@ public class RawStringTest {
 		final Method method = clazz.getMethod("sayHello");
 		Object o = clazz.newInstance();
 
-		// assert
-		assertEquals("Hello There", String.valueOf(method.invoke(o)).trim());
+		// assert	convertToFixedWidth
+		String value = String.valueOf(method.invoke(o)).trim();
+
+		assertEquals("SELECT\n\tNAME, AGE\nFROM CUSTOMER\n", align(value));
+
 	}
+
 }
