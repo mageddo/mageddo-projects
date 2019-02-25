@@ -36,6 +36,7 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
+
 		for (final Element element : roundEnv.getElementsAnnotatedWith(getAnnotation())) {
 			if (element instanceof ClassSymbol) {
 				final ClassSymbol classSymbol = (ClassSymbol) element;

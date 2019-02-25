@@ -72,6 +72,7 @@ dependencies {
 
 //		def tools = files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
 //		implementation tools
+		implementation files('/opt/jdk-7/lib/tools.jar')
 //		implementation('com.github.javaparser:javaparser-core:2.5.1') // java 8
 		implementation('com.github.javaparser:javaparser-core:2.4.0') // java 6 - 7
 		implementation('org.apache.commons:commons-lang3:3.8.1')
