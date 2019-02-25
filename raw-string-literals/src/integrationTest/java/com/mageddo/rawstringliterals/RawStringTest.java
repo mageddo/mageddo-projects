@@ -4,7 +4,7 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mdkt.compiler.InMemoryJavaCompiler;
 
-import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 import static org.junit.Assert.assertEquals;
 
@@ -22,11 +22,10 @@ public class RawStringTest {
 		// act
 		final Class clazz = compiler.compile("TestClass", sourceCode);
 
-		final Field nameField = clazz.getDeclaredField("name");
+		final Method method = clazz.getMethod("sayHello");
 		Object o = clazz.newInstance();
-		nameField.setAccessible(true);
 
 		// assert
-		assertEquals("Hello There", String.valueOf(nameField.get(o)).trim());
+		assertEquals("Hello There", String.valueOf(method.invoke(o)).trim());
 	}
 }

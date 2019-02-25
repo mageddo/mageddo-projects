@@ -29,14 +29,6 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 
 	@Override
 	public Trees visitClass(final ClassTree classTree, final CompilationUnitTree unitTree) {
-//		for (Tree member : classTree.getMembers()) {
-//			if (member.getKind() == Tree.Kind.METHOD) {
-//
-////							member.accept(new SimpleTreeVisitor<String, String>(){
-////
-////							});
-//			}
-//		}
 
 		if (unitTree instanceof JCCompilationUnit) {
 
@@ -72,49 +64,14 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 							}
 						}
 					}
-//								jcMethodDecl.getBody().getStatements().get(0).mods.annotations
-//					JCVariableDecl jcStatement = (JCVariableDecl) jcMethodDecl.getBody().getStatements().get(0);
-//								jcMethodDecl.
-//								elementUtils.getDocComment(jcStatement)
-//								jcMethodDecl.mods.annotations
-
 				}
 			});
-
-//							compilationUnit.accept(new TreeTranslator() {
-//								public void visitVarDef(final JCVariableDecl tree) {
-//									super.visitVarDef(tree);
-//
-//									if ((tree.mods.flags & Flags.FINAL) == 0) {
-//										tree.mods.flags |= Flags.FINAL;
-//									}
-//								}
-//							});
-
-//					if (unitTree instanceof JCCompilationUnit) {
-
-
-//						final JCCompilationUnit compilationUnit = (JCCompilationUnit) unitTree;
-//
-//						// Only process on files which have been compiled from source
-//						if (compilationUnit.sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
-//							compilationUnit.accept(new TreeTranslator() {
-//								public void visitVarDef(final JCVariableDecl tree) {
-//									super.visitVarDef(tree);
-//
-//									if ((tree.mods.flags & Flags.FINAL) == 0) {
-//										tree.mods.flags |= Flags.FINAL;
-//									}
-//								}
-//							});
-//						}
 		}
 		return trees;
 	}
 
 	@Override
 	public Object visitAnnotation(AnnotationTree annotationTree, CompilationUnitTree compilationUnitTree) {
-		System.out.println("visitou annotation");
 		return super.visitAnnotation(annotationTree, compilationUnitTree);
 	}
 
