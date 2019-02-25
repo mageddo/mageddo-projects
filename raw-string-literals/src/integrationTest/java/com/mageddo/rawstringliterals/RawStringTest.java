@@ -1,5 +1,6 @@
 package com.mageddo.rawstringliterals;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mdkt.compiler.InMemoryJavaCompiler;
 
@@ -14,22 +15,12 @@ public class RawStringTest {
 
 		// arrange
 		final InMemoryJavaCompiler compiler = InMemoryJavaCompiler.newInstance();
-		final StringBuilder sourceCode = new StringBuilder()
-			.append("import com.mageddo.rawstringliterals.RawString; \n")
-			.append(" \n")
-//			.append("@RawString \n")
-			.append("public class TestClass { \n")
-			.append(" \n")
 
-			.append("/** Hello There */ \n")
-			.append("@RawString \n")
-			.append("	private static String name; \n")
-			.append(" \n")
-			.append("} \n")
-			.append(" \n");
+
+		final String sourceCode = IOUtils.toString(getClass().getResourceAsStream("/TestClass.java"));
 
 		// act
-		final Class clazz = compiler.compile("TestClass", sourceCode.toString());
+		final Class clazz = compiler.compile("TestClass", sourceCode);
 
 		final Field nameField = clazz.getDeclaredField("name");
 		Object o = clazz.newInstance();
