@@ -3,8 +3,6 @@ package com.mageddo.rawstringliterals;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Set;
 
 @SupportedAnnotationTypes(References.RAW_STRING_REF)

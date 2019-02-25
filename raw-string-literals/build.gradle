@@ -11,8 +11,6 @@ repositories {
 sourceCompatibility = JavaVersion.VERSION_1_6
 targetCompatibility = JavaVersion.VERSION_1_6
 
-println(">>>>>>>>> is java 6 ${JavaVersion.current()}")
-
 sourceSets {
 	integrationTest {
 		java {
@@ -26,16 +24,30 @@ sourceSets {
 	}
 }
 
+task javadocJar(type: Jar) {
+	classifier = 'javadoc'
+	from javadoc
+}
+
+task sourcesJar(type: Jar) {
+	classifier = 'sources'
+	from sourceSets.main.allSource
+}
+
+artifacts {
+	archives javadocJar, sourcesJar
+}
+
+
 dependencies {
 	dependencies {
 
 		def tools = files("${System.properties['java.home']}/lib/tools.jar".replaceAll("/jre", ""))
-		compileOnly tools
+		implementation tools
 		implementation('com.github.javaparser:javaparser-core:2.5.1')
 		implementation('org.apache.commons:commons-lang3:3.8.1')
 		
 		testCompile 'junit:junit:4.12'
-		testCompile tools
 		testCompile group: 'net.openhft', name: 'compiler', version: '2.3.4'
 		testCompile group: 'org.mdkt.compiler', name: 'InMemoryJavaCompiler', version: '1.3.0'
 		testCompile group: 'commons-io', name: 'commons-io', version: '2.6'
