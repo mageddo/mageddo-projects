@@ -32,7 +32,7 @@ public final class Java6ClassScanner {
 
 	public static String findVarValue(Reader r, String methodName, String varName, String annotationName) throws IOException {
 		try {
-			final CompilationUnit cu = JavaParser.parse(r);
+			final CompilationUnit cu = JavaParser.parse(r, true);
 			for (final TypeDeclaration type : cu.getTypes()) {
 				for (final BodyDeclaration member : type.getMembers()) {
 					if (member instanceof MethodDeclaration) {

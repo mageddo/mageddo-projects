@@ -10,15 +10,17 @@ import com.sun.tools.javac.tree.JCTree.JCCompilationUnit;
 import com.sun.tools.javac.tree.JCTree.JCVariableDecl;
 import com.sun.tools.javac.tree.TreeTranslator;
 
-import javax.annotation.processing.*;
-import javax.lang.model.SourceVersion;
+import javax.annotation.processing.AbstractProcessor;
+import javax.annotation.processing.ProcessingEnvironment;
+import javax.annotation.processing.RoundEnvironment;
+import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.util.Set;
 
 @SupportedAnnotationTypes(References.RAW_STRING_REF)
-@SupportedSourceVersion(SourceVersion.RELEASE_8)
+//@SupportedSourceVersion(SourceVersion.RELEASE_6)
 public class RawStringAnnotationProcessor extends AbstractProcessor {
 
 	private Trees trees;
