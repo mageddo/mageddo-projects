@@ -19,5 +19,7 @@ public class Stuff {
 }
 ```
 
+* Java 7+ support
+* Tested on gradle and intellij
 
 Licensed under Apache License Version 2.0
