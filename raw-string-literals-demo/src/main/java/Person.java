@@ -1,8 +1,9 @@
 import com.mageddo.rawstringliterals.RawString;
+import com.mageddo.rawstringliterals.Rsl;
 
 import static com.mageddo.rawstringliterals.RawStrings.lateInit;
 
-@RawString
+@Rsl
 public class Person {
 
 	public void sayHello() {
@@ -10,8 +11,8 @@ public class Person {
 		/**
 		 * Hello World!!!
 		 */
-		@RawString final String word = lateInit();
-
+		@RawString
+		final String word = lateInit();
 		System.out.println(word);
 
 	}
