@@ -1,11 +1,20 @@
-#### [Gradle 5+](https://docs.gradle.org/5.0/userguide/java_plugin.html#sec:java_compile_avoidance)
+String multiline support for Java without concatenation overhead 
 
-On gradle 5+ use `annotationProcessor` 
+* [Play the demo project](https://github.com/mageddo/mageddo-projects/tree/master/raw-string-literals-demo)
+* See the example bellow
 
 
-	provided('com.mageddo:raw-string-literals:1.0.0')
-	annotationProcessor('com.mageddo:raw-string-literals:1.0.0')
-	
-On gradle 4-
-
-	provided('com.mageddo:raw-string-literals:1.0.0')
+```java
+@Rsl // indicates RSL must scan this class for inject multiline strings
+public class Stuff {
+	public void doSomething(){
+		/*
+		Lorem Ipsum is simply dummy text of 
+		the printing and typesetting industry
+		 */
+		@RawString // indicates this is a multiline string and the compiler must inject it
+		final String text = RawStrings.lateInit(); // this method throws an exception if called  then it ensures RSL is working
+		System.out.println(text);
+	}
+}
+```
