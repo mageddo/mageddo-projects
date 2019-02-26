@@ -1,9 +1,12 @@
 String multiline support for Java without concatenation overhead 
 
 * [Play the demo project](https://github.com/mageddo/mageddo-projects/tree/master/raw-string-literals-demo)
-* See the example bellow
+* Java 7+ support
+* Tested on gradle and intellij
 
+Getting Started
 
+Main.java
 ```java
 @Rsl // indicates RSL must scan this class for inject multiline strings
 public class Stuff {
@@ -19,7 +22,20 @@ public class Stuff {
 }
 ```
 
-* Java 7+ support
-* Tested on gradle and intellij
+build.gradle
+
+```groovy
+apply plugin 'java'
+
+dependencies {
+
+	compileOnly('com.mageddo:raw-string-literals:1.0.0')
+	annotationProcessor('com.mageddo:raw-string-literals:1.0.0')
+	
+	testAnnotationProcessor('com.mageddo:raw-string-literals:1.0.0')
+	testCompileOnly('com.mageddo:raw-string-literals:1.0.0')
+}
+
+```
 
 Licensed under Apache License Version 2.0
