@@ -1,0 +1,14 @@
+apply plugin: 'java'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_8
+
+dependencies {
+    implementation('com.mageddo:raw-string-literals:1.0.1')
+    annotationProcessor('com.mageddo:raw-string-literals:1.0.1')
+    testCompile 'junit:junit:4.12'
+}
