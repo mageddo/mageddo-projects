@@ -13,50 +13,37 @@ import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
+import com.github.javaparser.ast.stmt.TryStmt;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 
 import java.io.IOException;
 import java.io.Reader;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public final class ClassScanner {
 
-	public static String findVarValue(ClassSymbol classSymbol, String methodName, String varName, String annotationName) {
+	public static String findMultilineVar(ClassSymbol classSymbol, String methodName, String varName, String annotationName) {
 		try {
 			final Reader r = classSymbol.sourcefile.openReader(true);
-			return findVarValue(r, methodName, varName, annotationName);
+			return findMultilineVar(r, methodName, varName, annotationName);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
 
-	public static String findVarValue(Reader r, String methodName, String varName, String annotationName) throws IOException {
+	static String findMultilineVar(Reader r, String methodName, String varName, String annotationName) throws IOException {
 		try {
 			final CompilationUnit cu = JavaParser.parse(r, true);
 			for (final TypeDeclaration type : cu.getTypes()) {
-				for (final BodyDeclaration member : type.getMembers()) {
-					if (member instanceof MethodDeclaration) {
-						final MethodDeclaration methodDeclaration = (MethodDeclaration) member;
-						if (methodDeclaration.getName().equals(methodName)) {
-							final BlockStmt methodDeclarationBody = methodDeclaration.getBody();
-							for (final Statement stm : methodDeclarationBody.getStmts()) {
-								if (stm instanceof ExpressionStmt) {
-									final ExpressionStmt expressionStmt = (ExpressionStmt) stm;
-									for (final Node stmNodes : expressionStmt.getChildrenNodes()) {
-										if (stmNodes instanceof VariableDeclarationExpr) {
-											final VariableDeclarationExpr varDeclar = (VariableDeclarationExpr) stmNodes;
-											if (containsVar(varDeclar.getVars(), varName)) {
-												for (final AnnotationExpr annotation : varDeclar.getAnnotations()) {
-													if (annotation.getName().getName().equals(annotationName)) {
-														return expressionStmt.getComment().getContent();
-													}
-												}
-											}
-										}
-									}
-								}
+				final MethodDeclaration method = findMethod(type, methodName);
+				if (method != null) {
+					for (Statement statement : getStatements(method)) {
+							final LocalVariable localVariable = findVar(statement, varName);
+							if(localVariable != null && localVariable.containsAnnotation(annotationName)){
+								return localVariable.getComment();
 							}
-						}
 					}
 				}
 			}
@@ -68,12 +55,120 @@ public final class ClassScanner {
 		return null;
 	}
 
-	private static boolean containsVar(List<VariableDeclarator> vars, String varName) {
-		for (VariableDeclarator var : vars) {
-			if (var.getId().getName().equals(varName)) {
-				return true;
+	/**
+	 *
+	 * @param method
+	 * @return a flatten list of all method declared statements
+	 */
+	private static List<Statement> getStatements(MethodDeclaration method) {
+		final BlockStmt methodDeclarationBody = method.getBody();
+		final List<Statement> statements = new ArrayList<>();
+		findStatementsRecursive(methodDeclarationBody, statements);
+		return statements;
+	}
+
+	static void findStatementsRecursive(final Statement parent, final List<Statement> children){
+		for (final Statement stm : getStatements(parent)) {
+			children.add(stm);
+			findStatementsRecursive(stm, children);
+		}
+	}
+
+	private static LocalVariable findVar(Statement stmt, String varName) {
+		if(!(stmt instanceof ExpressionStmt)){
+			return null;
+		}
+		final ExpressionStmt expressionStmt = (ExpressionStmt) stmt;
+		for (Node node : stmt.getChildrenNodes()) {
+			if (node instanceof VariableDeclarationExpr) {
+				final VariableDeclarationExpr varDeclar = (VariableDeclarationExpr) node;
+				for (final VariableDeclarator var : varDeclar.getVars()) {
+					if(var.getId().getName().equals(varName)){
+						return new LocalVariable()
+							.setComment(expressionStmt.getComment().getContent())
+							.setName(var.getId().getName())
+							.setVariableDeclarationExpr(varDeclar)
+							.setAnnotationExprs(varDeclar.getAnnotations())
+						;
+					}
+				}
 			}
 		}
-		return false;
+		return null;
+	}
+
+	public static MethodDeclaration findMethod(TypeDeclaration type, String methodName) {
+		for (final BodyDeclaration member : type.getMembers()) {
+			if (member instanceof MethodDeclaration) {
+				final MethodDeclaration methodDeclaration = (MethodDeclaration) member;
+				if (methodDeclaration.getName().equals(methodName)) {
+					return methodDeclaration;
+				}
+			}
+		}
+		return null;
+	}
+
+	private static List<Statement> getStatements(Statement stmt) {
+		if (stmt instanceof BlockStmt) {
+			return ((BlockStmt) stmt).getStmts();
+		}
+		if (stmt instanceof TryStmt) {
+			return ((TryStmt) stmt).getTryBlock().getStmts();
+		}
+		return Collections.emptyList();
+	}
+
+	private static class LocalVariable {
+
+		private String name;
+		private VariableDeclarationExpr variableDeclarationExpr;
+		private String comment;
+		private List<AnnotationExpr> annotationExprs;
+
+		public boolean containsAnnotation(String name){
+			for (AnnotationExpr annotationExpr : annotationExprs) {
+				if(annotationExpr.getName().getName().equals(name)){
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public LocalVariable setName(String name) {
+			this.name = name;
+			return this;
+		}
+
+		public VariableDeclarationExpr getVariableDeclarationExpr() {
+			return variableDeclarationExpr;
+		}
+
+		public LocalVariable setVariableDeclarationExpr(VariableDeclarationExpr variableDeclarationExpr) {
+			this.variableDeclarationExpr = variableDeclarationExpr;
+			return this;
+		}
+
+		public String getComment() {
+			return comment;
+		}
+
+		public LocalVariable setComment(String comment) {
+			this.comment = comment;
+			return this;
+		}
+
+		public List<AnnotationExpr> getAnnotationExprs() {
+			return annotationExprs;
+		}
+
+		public LocalVariable setAnnotationExprs(List<AnnotationExpr> annotationExprs) {
+			this.annotationExprs = annotationExprs;
+			return this;
+		}
 	}
 }

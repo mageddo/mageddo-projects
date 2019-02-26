@@ -22,4 +22,34 @@ public class TestClass {
 		return word;
 	}
 
+	public String sayHello2(){
+		try {
+			/*
+				UPDATE TABLE SET NAME='MATEUS' WHERE ID = 5
+			*/
+			@RawString
+			final String sql = lateInit();
+			return sql;
+		} catch (RuntimeException e){
+			throw e;
+		}
+	}
+
+	public String sayHello3(){
+		try {
+			try {
+				/*
+				SAY_HELLO_3
+				*/
+				@RawString
+				final String msg = lateInit();
+				return msg;
+			} finally {
+
+			}
+		} catch (RuntimeException e){
+			throw e;
+		}
+	}
+
 }

@@ -4,8 +4,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mdkt.compiler.InMemoryJavaCompiler;
 
-import java.lang.reflect.Method;
-
 import static com.mageddo.rawstringliterals.commons.StringUtils.align;
 import static org.junit.Assert.assertEquals;
 
@@ -23,12 +21,15 @@ public class RawStringTest {
 		// act
 		final Class clazz = compiler.compile("TestClass", sourceCode);
 
-		final Method method = clazz.getMethod("sayHello");
-		Object o = clazz.newInstance();
+		final Object o = clazz.newInstance();
 
-		String value = String.valueOf(method.invoke(o));
+		final String sayHelloWord = String.valueOf(clazz.getMethod("sayHello").invoke(o));
+		assertEquals("SELECT\n\tNAME, AGE\nFROM CUSTOMER\n", align(sayHelloWord));
 
-		assertEquals("SELECT\n\tNAME, AGE\nFROM CUSTOMER\n", align(value));
+		final String sayHello2Word = String.valueOf(clazz.getMethod("sayHello2").invoke(o));
+		assertEquals("UPDATE TABLE SET NAME='MATEUS' WHERE ID = 5\n", align(sayHello2Word));
+
+		assertEquals("SAY_HELLO_3\n", align(String.valueOf(clazz.getMethod("sayHello3").invoke(o))));
 
 	}
 

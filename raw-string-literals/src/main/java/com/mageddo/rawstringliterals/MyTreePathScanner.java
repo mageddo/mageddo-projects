@@ -13,6 +13,8 @@ import com.sun.tools.javac.tree.TreeMaker;
 import com.sun.tools.javac.tree.TreeTranslator;
 
 import javax.tools.JavaFileObject;
+import java.util.Collections;
+import java.util.List;
 
 public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTree> {
 
@@ -39,28 +41,46 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 				@Override
 				public void visitMethodDef(JCTree.JCMethodDecl jcMethodDecl) {
 					super.visitMethodDef(jcMethodDecl);
-					for (final JCStatement statement : jcMethodDecl.getBody().getStatements()) {
-						if(!(statement instanceof JCVariableDecl)){
-							continue;
-						}
-						final JCVariableDecl variableDecl = (JCVariableDecl) statement;
-						for (final JCAnnotation annotation : variableDecl.mods.annotations) {
-							if(annotation.getAnnotationType() instanceof JCIdent) {
-								final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
-								final String annotationName = RawString.class.getSimpleName();
-								if(annotationType.getName().toString().equals(annotationName)){
-									final String varValue = ClassScanner.findVarValue(
-										classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
-									);
-									variableDecl.init = maker.Literal(varValue);
-								}
-							}
-						}
-					}
+					processStatement(jcMethodDecl, jcMethodDecl.getBody());
 				}
 			});
 		}
 		return trees;
+	}
+
+	private void processStatement(JCMethodDecl jcMethodDecl, JCStatement statement) {
+		if(statement instanceof JCVariableDecl){
+			setupVar(jcMethodDecl, (JCVariableDecl) statement);
+		} else {
+			for (final JCStatement jcStatement : getStatements(statement)) {
+				processStatement(jcMethodDecl, jcStatement);
+			}
+		}
+	}
+
+	private List<JCStatement> getStatements(JCStatement statement) {
+		if(statement instanceof JCTry){
+			return ((JCTry) statement).getBlock().getStatements();
+		}
+		if(statement instanceof JCBlock){
+			return ((JCBlock) statement).getStatements();
+		}
+		return Collections.emptyList();
+	}
+
+	private void setupVar(JCMethodDecl jcMethodDecl, JCVariableDecl variableDecl) {
+		for (final JCAnnotation annotation : variableDecl.mods.annotations) {
+			if(annotation.getAnnotationType() instanceof JCIdent) {
+				final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
+				final String annotationName = RawString.class.getSimpleName();
+				if(annotationType.getName().toString().equals(annotationName)){
+					final String varValue = ClassScanner.findMultilineVar(
+						classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
+					);
+					variableDecl.init = maker.Literal(varValue);
+				}
+			}
+		}
 	}
 
 	public void scan() {
