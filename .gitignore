@@ -7,5 +7,9 @@ build
 old
 maven
 out/
-feature-switch/src/test/java/com/mageddo/featureswitch/Main.java
 *.orig
+bin
+.apt_generated/
+.classpath
+.settings
+.project
