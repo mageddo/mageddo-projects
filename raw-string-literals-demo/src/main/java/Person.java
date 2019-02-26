@@ -6,14 +6,14 @@ import static com.mageddo.rawstringliterals.RawStrings.lateInit;
 @Rsl
 public class Person {
 
-	public void sayHello() {
+	public String sayHello() {
 
 		/**
 		 * Hello World!!!
 		 */
 		@RawString
 		final String word = lateInit();
-		System.out.println(word);
+		return word;
 
 	}
 
