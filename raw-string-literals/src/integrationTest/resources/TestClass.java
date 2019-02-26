@@ -1,14 +1,11 @@
 import com.mageddo.rawstringliterals.RawString;
 import com.mageddo.rawstringliterals.RawStrings;
+import com.mageddo.rawstringliterals.Rsl;
 
 import static com.mageddo.rawstringliterals.RawStrings.lateInit;
 
-@RawString("type")
+@Rsl
 public class TestClass {
-
-	/** Hello There */
-	@RawString("field")
-	private static String name;
 
 	public String sayHello(){
 
@@ -17,7 +14,7 @@ public class TestClass {
 				NAME, AGE
 			FROM CUSTOMER
 		*/
-		@RawString("local variable")
+		@RawString
 		final String word = lateInit();
 		return word;
 	}

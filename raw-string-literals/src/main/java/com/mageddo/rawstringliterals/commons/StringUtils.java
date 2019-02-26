@@ -7,6 +7,12 @@ public final class StringUtils {
 	private StringUtils() {
 	}
 
+	/**
+	 * Removes vertical and horizontal white space margins from around the
+	 * essential body of a multi-line string, while preserving relative
+	 * indentation.
+	 *
+	 */
 	public static String align(String value) {
 
 		int minWhitesSpaces = Integer.MAX_VALUE;

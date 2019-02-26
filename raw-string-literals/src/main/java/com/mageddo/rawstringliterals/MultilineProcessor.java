@@ -24,7 +24,7 @@ public final class MultilineProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-		if (delegate == null) {
+		if (this.delegate == null) {
 			return true;
 		}
 		return delegate.process(annotations, roundEnv);

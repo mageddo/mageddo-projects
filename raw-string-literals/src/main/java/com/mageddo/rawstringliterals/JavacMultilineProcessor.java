@@ -8,14 +8,12 @@ import com.sun.tools.javac.tree.TreeMaker;
 import javax.annotation.processing.AbstractProcessor;
 import javax.annotation.processing.ProcessingEnvironment;
 import javax.annotation.processing.RoundEnvironment;
-import javax.annotation.processing.SupportedAnnotationTypes;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
 import javax.tools.JavaFileObject;
 import java.util.Set;
 
-@SupportedAnnotationTypes(References.RAW_STRING_REF)
 public final class JavacMultilineProcessor extends AbstractProcessor {
 
 	private TreeMaker maker;
@@ -26,7 +24,7 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 		super.init(procEnv);
 		JavacProcessingEnvironment javacProcessingEnv = (JavacProcessingEnvironment) procEnv;
 		this.maker = TreeMaker.instance(javacProcessingEnv.getContext());
-		trees = Trees.instance(processingEnv);
+		this.trees = Trees.instance(processingEnv);
 	}
 
 	@Override
@@ -36,23 +34,16 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-
-		for (final Element element : roundEnv.getElementsAnnotatedWith(getAnnotation())) {
+		for (final Element element : roundEnv.getElementsAnnotatedWith(References.RSL_CLASS)) {
 			if (element instanceof ClassSymbol) {
 				final ClassSymbol classSymbol = (ClassSymbol) element;
 				if (classSymbol.sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
-					final MyTreePathScanner scanner = new MyTreePathScanner(maker, trees, classSymbol);
+					final MultilineTreePathScanner scanner = new MultilineTreePathScanner(maker, trees, classSymbol);
 					scanner.scan();
 				}
 			}
 		}
 		return true;
-
 	}
-
-	private Class<RawString> getAnnotation() {
-		return RawString.class;
-	}
-
 
 }

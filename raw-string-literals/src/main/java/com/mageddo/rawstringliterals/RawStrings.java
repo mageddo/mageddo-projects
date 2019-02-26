@@ -1,6 +1,7 @@
 package com.mageddo.rawstringliterals;
 
 public final class RawStrings {
+
 	/**
 	 * This method requires RSL to work otherwise an exception will be thrown
 	 *

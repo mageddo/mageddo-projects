@@ -16,16 +16,18 @@ import javax.tools.JavaFileObject;
 import java.util.Collections;
 import java.util.List;
 
-public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTree> {
+public class MultilineTreePathScanner extends TreePathScanner<Object, CompilationUnitTree> {
 
 	private final TreeMaker maker;
 	private final Trees trees;
 	private final ClassSymbol classSymbol;
+	private final String annotationName;
 
-	public MyTreePathScanner(TreeMaker maker, Trees trees, ClassSymbol classSymbol) {
+	public MultilineTreePathScanner(TreeMaker maker, Trees trees, ClassSymbol classSymbol) {
 		this.maker = maker;
 		this.trees = trees;
 		this.classSymbol = classSymbol;
+		this.annotationName = References.MULTILINE_ANNOTATION.getSimpleName();
 	}
 
 	@Override
@@ -72,7 +74,6 @@ public class MyTreePathScanner extends TreePathScanner<Object, CompilationUnitTr
 		for (final JCAnnotation annotation : variableDecl.mods.annotations) {
 			if(annotation.getAnnotationType() instanceof JCIdent) {
 				final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
-				final String annotationName = RawString.class.getSimpleName();
 				if(annotationType.getName().toString().equals(annotationName)){
 					final String varValue = ClassScanner.findMultilineVar(
 						classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
