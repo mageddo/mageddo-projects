@@ -19,7 +19,7 @@ public class Method {
 
 		for (final JCTree.JCVariableDecl parameter : methodDecl.getParameters()) {
 			sb
-			.append(((JCTree.JCIdent) parameter.vartype).getName())
+			.append(parameter.vartype)
 			.append(',')
 			;
 		}
