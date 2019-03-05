@@ -1,5 +1,6 @@
 package com.mageddo.rawstringliterals;
 
+import com.mageddo.rawstringliterals.javac.Method;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TreePath;
@@ -79,9 +80,16 @@ public class MultilineTreePathScanner extends TreePathScanner<Object, Compilatio
 				final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
 				if(annotationType.getName().toString().equals(annotationName)){
 					final String varValue = classScanner.findMultilineVar(
-						classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
+						classSymbol, new Method(jcMethodDecl), variableDecl.getName().toString(), annotationName
 					);
-					variableDecl.init = maker.Literal(varValue);
+					try {
+						variableDecl.init = maker.Literal(varValue);
+					} catch (Throwable e){
+						throw new IllegalStateException(String.format(
+							"can't define variable %s with value %s on method %s.%s",
+							variableDecl.getName(), varValue, classSymbol.getSimpleName(), jcMethodDecl.getName()
+						), e);
+					}
 				}
 			}
 		}

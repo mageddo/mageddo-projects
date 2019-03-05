@@ -16,20 +16,21 @@ import java.util.Set;
 
 public final class JavacMultilineProcessor extends AbstractProcessor {
 
+	private ClassScanner classScanner;
 	private TreeMaker maker;
 	private Trees trees;
-	private ClassScanner classScanner;
 
-	public JavacMultilineProcessor(ClassScanner classScanner) {
+	JavacMultilineProcessor(ClassScanner classScanner) {
 		this.classScanner = classScanner;
 	}
 
 	@Override
-	public void init(final ProcessingEnvironment procEnv) {
+	public void init(ProcessingEnvironment procEnv) {
 		super.init(procEnv);
-		JavacProcessingEnvironment javacProcessingEnv = (JavacProcessingEnvironment) procEnv;
-		this.maker = TreeMaker.instance(javacProcessingEnv.getContext());
-		this.trees = Trees.instance(processingEnv);
+	 final JavacProcessingEnvironment javacProcessingEnv = (JavacProcessingEnvironment) procEnv;
+	 this.maker = TreeMaker.instance(javacProcessingEnv.getContext());
+	 this.trees = Trees.instance(processingEnv);
+
 	}
 
 	@Override
@@ -44,13 +45,19 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 				if (element instanceof ClassSymbol) {
 					final ClassSymbol classSymbol = (ClassSymbol) element;
 					if (classSymbol.sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
-						final MultilineTreePathScanner scanner = new MultilineTreePathScanner(maker, trees, classSymbol, classScanner);
-						scanner.scan();
+						new MultilineTreePathScanner(maker, trees, classSymbol, classScanner).scan();
+//						try (
+//							final Reader in = classSymbol.sourcefile.openReader(true);
+//							final Writer out = new OutputStreamWriter(classSymbol.classfile.openOutputStream())
+//						) {
+//							classScanner.processMultilineVars(in, out);
+//						}
 					}
 				}
 			}
 		} catch (Throwable e){
 			e.printStackTrace();
+			throw e;
 		}
 		return true;
 	}

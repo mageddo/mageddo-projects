@@ -24,6 +24,7 @@ project(':rsl-compiler'){
 	targetCompatibility = JavaVersion.VERSION_1_7
 	dependencies {
 		compile('org.apache.commons:commons-lang3:3.8.1')
+		compile('com.github.javaparser:javaparser-core:2.4.0')
 		compile(project(':rsl'))
 		compileOnly tools
 	}
@@ -34,7 +35,6 @@ project(':rsl-compiler-jre7'){
 	targetCompatibility = JavaVersion.VERSION_1_7
 	dependencies {
 
-		compile('com.github.javaparser:javaparser-core:2.4.0')
 		compile(project(':rsl-compiler'))
 		compileOnly tools
 
@@ -51,7 +51,6 @@ project(':rsl-compiler-jre8'){
 	targetCompatibility = JavaVersion.VERSION_1_8
 	dependencies {
 
-		compile('com.github.javaparser:javaparser-core:2.4.0')
 		compile(project(':rsl-compiler'))
 		compileOnly tools
 
