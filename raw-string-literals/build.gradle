@@ -9,6 +9,7 @@ if(JavaVersion.current() != JavaVersion.VERSION_1_8){
 
 allprojects {
 	apply plugin: 'java'
+	apply plugin: 'maven'
 	repositories {
 		mavenLocal()
 		mavenCentral()
@@ -22,18 +23,19 @@ project(':rsl-compiler'){
 	sourceCompatibility = JavaVersion.VERSION_1_7
 	targetCompatibility = JavaVersion.VERSION_1_7
 	dependencies {
-		implementation('org.apache.commons:commons-lang3:3.8.1')
-		implementation(project(':rsl'))
+		compile('org.apache.commons:commons-lang3:3.8.1')
+		compile(project(':rsl'))
 		compileOnly tools
 	}
 }
+
 project(':rsl-compiler-jre7'){
 	sourceCompatibility = JavaVersion.VERSION_1_7
 	targetCompatibility = JavaVersion.VERSION_1_7
 	dependencies {
 
-		implementation('com.github.javaparser:javaparser-core:2.4.0')
-		implementation(project(':rsl-compiler'))
+		compile('com.github.javaparser:javaparser-core:2.4.0')
+		compile(project(':rsl-compiler'))
 		compileOnly tools
 
 		testCompile 'junit:junit:4.12'
@@ -49,8 +51,8 @@ project(':rsl-compiler-jre8'){
 	targetCompatibility = JavaVersion.VERSION_1_8
 	dependencies {
 
-		implementation('com.github.javaparser:javaparser-core:2.4.0')
-		implementation(project(':rsl-compiler'))
+		compile('com.github.javaparser:javaparser-core:2.4.0')
+		compile(project(':rsl-compiler'))
 		compileOnly tools
 
 		testCompile 'junit:junit:4.12'
