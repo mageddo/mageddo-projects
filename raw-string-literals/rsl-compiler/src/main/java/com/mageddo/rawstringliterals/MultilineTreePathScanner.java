@@ -1,6 +1,5 @@
 package com.mageddo.rawstringliterals;
 
-import com.mageddo.rawstringliterals.javac.ClassScanner;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TreePath;
@@ -22,11 +21,15 @@ public class MultilineTreePathScanner extends TreePathScanner<Object, Compilatio
 	private final Trees trees;
 	private final ClassSymbol classSymbol;
 	private final String annotationName;
+	private ClassScanner classScanner;
 
-	public MultilineTreePathScanner(TreeMaker maker, Trees trees, ClassSymbol classSymbol) {
+	public MultilineTreePathScanner(
+		TreeMaker maker, Trees trees, ClassSymbol classSymbol, ClassScanner classScanner
+	) {
 		this.maker = maker;
 		this.trees = trees;
 		this.classSymbol = classSymbol;
+		this.classScanner = classScanner;
 		this.annotationName = References.MULTILINE_ANNOTATION.getSimpleName();
 	}
 
@@ -75,7 +78,7 @@ public class MultilineTreePathScanner extends TreePathScanner<Object, Compilatio
 			if(annotation.getAnnotationType() instanceof JCIdent) {
 				final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
 				if(annotationType.getName().toString().equals(annotationName)){
-					final String varValue = ClassScanner.findMultilineVar(
+					final String varValue = classScanner.findMultilineVar(
 						classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
 					);
 					variableDecl.init = maker.Literal(varValue);

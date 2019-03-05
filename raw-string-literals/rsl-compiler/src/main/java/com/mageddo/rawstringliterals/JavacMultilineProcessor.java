@@ -18,6 +18,11 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 
 	private TreeMaker maker;
 	private Trees trees;
+	private ClassScanner classScanner;
+
+	public JavacMultilineProcessor(ClassScanner classScanner) {
+		this.classScanner = classScanner;
+	}
 
 	@Override
 	public void init(final ProcessingEnvironment procEnv) {
@@ -34,14 +39,18 @@ public final class JavacMultilineProcessor extends AbstractProcessor {
 
 	@Override
 	public boolean process(final Set<? extends TypeElement> annotations, final RoundEnvironment roundEnv) {
-		for (final Element element : roundEnv.getElementsAnnotatedWith(References.RSL_CLASS)) {
-			if (element instanceof ClassSymbol) {
-				final ClassSymbol classSymbol = (ClassSymbol) element;
-				if (classSymbol.sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
-					final MultilineTreePathScanner scanner = new MultilineTreePathScanner(maker, trees, classSymbol);
-					scanner.scan();
+		try {
+			for (final Element element : roundEnv.getElementsAnnotatedWith(References.RSL_CLASS)) {
+				if (element instanceof ClassSymbol) {
+					final ClassSymbol classSymbol = (ClassSymbol) element;
+					if (classSymbol.sourcefile.getKind() == JavaFileObject.Kind.SOURCE) {
+						final MultilineTreePathScanner scanner = new MultilineTreePathScanner(maker, trees, classSymbol, classScanner);
+						scanner.scan();
+					}
 				}
 			}
+		} catch (Throwable e){
+			e.printStackTrace();
 		}
 		return true;
 	}

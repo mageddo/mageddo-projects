@@ -1,5 +1,7 @@
 package com.mageddo.rawstringliterals;
 
+import com.mageddo.rawstringliterals.jre8.javac.ClassScannerJava7;
+
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.TypeElement;
@@ -13,7 +15,7 @@ public final class MultilineProcessor extends AbstractProcessor {
 	@Override
 	public void init(final ProcessingEnvironment procEnv) {
 		super.init(procEnv);
-		delegate = new JavacMultilineProcessor();
+		delegate = new JavacMultilineProcessor(new ClassScannerJava7());
 		delegate.init(procEnv);
 	}
 

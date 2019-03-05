@@ -1,4 +1,4 @@
-package com.mageddo.rawstringliterals.javac;
+package com.mageddo.rawstringliterals.jre8.javac;
 
 import com.github.javaparser.JavaParser;
 import com.github.javaparser.ParseException;
@@ -13,6 +13,7 @@ import com.github.javaparser.ast.stmt.BlockStmt;
 import com.github.javaparser.ast.stmt.ExpressionStmt;
 import com.github.javaparser.ast.stmt.Statement;
 import com.github.javaparser.ast.stmt.TryStmt;
+import com.mageddo.rawstringliterals.ClassScanner;
 import com.sun.tools.javac.code.Symbol.ClassSymbol;
 
 import java.io.IOException;
@@ -21,9 +22,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public final class ClassScanner {
+public final class ClassScannerJava7 implements ClassScanner {
 
-	public static String findMultilineVar(ClassSymbol classSymbol, String methodName, String varName, String annotationName) {
+	@Override
+	public String findMultilineVar(ClassSymbol classSymbol, String methodName, String varName, String annotationName) {
 		try {
 			final Reader r = classSymbol.sourcefile.openReader(true);
 			return findMultilineVar(r, methodName, varName, annotationName);
@@ -32,7 +34,8 @@ public final class ClassScanner {
 		}
 	}
 
-	static String findMultilineVar(Reader r, String methodName, String varName, String annotationName) throws IOException {
+	@Override
+	public String findMultilineVar(Reader r, String methodName, String varName, String annotationName) throws IOException {
 		try {
 			final CompilationUnit cu = JavaParser.parse(r, true);
 			for (final TypeDeclaration type : cu.getTypes()) {

@@ -2,3 +2,5 @@ rootProject.name = 'raw-string-literals'
 
 include ':rsl'
 include ':rsl-compiler'
+include ':rsl-compiler-jre7'
+include ':rsl-compiler-jre8'

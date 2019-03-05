@@ -1,4 +1,4 @@
-package com.mageddo.rawstringliterals.javac;
+package com.mageddo.rawstringliterals.jre7.javac;
 
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
