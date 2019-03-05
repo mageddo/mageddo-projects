@@ -29,11 +29,11 @@ apply plugin 'java'
 
 dependencies {
 
-	compileOnly('com.mageddo:raw-string-literals:1.0.0')
-	annotationProcessor('com.mageddo:raw-string-literals:1.0.0')
+	compileOnly('com.mageddo:rsl:1.0.0')
+	annotationProcessor('com.mageddo:rsl-compiler:1.0.1')
 	
-	testAnnotationProcessor('com.mageddo:raw-string-literals:1.0.0')
-	testCompileOnly('com.mageddo:raw-string-literals:1.0.0')
+	testCompileOnly('com.mageddo:rsl:1.0.0')
+	testAnnotationProcessor('com.mageddo:rsl-compiler:1.0.1')
 }
 
 ```

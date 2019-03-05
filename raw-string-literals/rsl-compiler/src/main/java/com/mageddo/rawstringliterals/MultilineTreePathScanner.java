@@ -1,6 +1,6 @@
 package com.mageddo.rawstringliterals;
 
-import com.mageddo.rawstringliterals.javac.ClassScanner;
+import com.mageddo.rawstringliterals.javac.Method;
 import com.sun.source.tree.ClassTree;
 import com.sun.source.tree.CompilationUnitTree;
 import com.sun.source.util.TreePath;
@@ -22,11 +22,15 @@ public class MultilineTreePathScanner extends TreePathScanner<Object, Compilatio
 	private final Trees trees;
 	private final ClassSymbol classSymbol;
 	private final String annotationName;
+	private ClassScanner classScanner;
 
-	public MultilineTreePathScanner(TreeMaker maker, Trees trees, ClassSymbol classSymbol) {
+	public MultilineTreePathScanner(
+		TreeMaker maker, Trees trees, ClassSymbol classSymbol, ClassScanner classScanner
+	) {
 		this.maker = maker;
 		this.trees = trees;
 		this.classSymbol = classSymbol;
+		this.classScanner = classScanner;
 		this.annotationName = References.MULTILINE_ANNOTATION.getSimpleName();
 	}
 
@@ -75,10 +79,17 @@ public class MultilineTreePathScanner extends TreePathScanner<Object, Compilatio
 			if(annotation.getAnnotationType() instanceof JCIdent) {
 				final JCIdent annotationType = (JCIdent) annotation.getAnnotationType();
 				if(annotationType.getName().toString().equals(annotationName)){
-					final String varValue = ClassScanner.findMultilineVar(
-						classSymbol, jcMethodDecl.getName().toString(), variableDecl.getName().toString(), annotationName
+					final String varValue = classScanner.findMultilineVar(
+						classSymbol, new Method(jcMethodDecl), variableDecl.getName().toString(), annotationName
 					);
-					variableDecl.init = maker.Literal(varValue);
+					try {
+						variableDecl.init = maker.Literal(varValue);
+					} catch (Throwable e){
+						throw new IllegalStateException(String.format(
+							"can't define variable %s with value %s on method %s.%s",
+							variableDecl.getName(), varValue, classSymbol.getSimpleName(), jcMethodDecl.getName()
+						), e);
+					}
 				}
 			}
 		}

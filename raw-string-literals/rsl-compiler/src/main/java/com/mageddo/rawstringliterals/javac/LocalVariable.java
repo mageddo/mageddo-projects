@@ -1,5 +1,6 @@
 package com.mageddo.rawstringliterals.javac;
 
+import com.github.javaparser.ast.body.VariableDeclarator;
 import com.github.javaparser.ast.expr.AnnotationExpr;
 import com.github.javaparser.ast.expr.VariableDeclarationExpr;
 
@@ -11,6 +12,7 @@ class LocalVariable {
 	private VariableDeclarationExpr variableDeclarationExpr;
 	private String comment;
 	private List<AnnotationExpr> annotationExprs;
+	private VariableDeclarator variable;
 
 	public boolean containsAnnotation(String name){
 		for (AnnotationExpr annotationExpr : annotationExprs) {
@@ -55,5 +57,14 @@ class LocalVariable {
 	public LocalVariable setAnnotationExprs(List<AnnotationExpr> annotationExprs) {
 		this.annotationExprs = annotationExprs;
 		return this;
+	}
+
+	public LocalVariable setVariable(VariableDeclarator variable) {
+		this.variable = variable;
+		return this;
+	}
+
+	public VariableDeclarator getVariable() {
+		return variable;
 	}
 }
