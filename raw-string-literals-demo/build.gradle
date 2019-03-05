@@ -9,11 +9,11 @@ sourceCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
 
-	compileOnly('com.mageddo:rsl:1.0.1')
-	annotationProcessor('com.mageddo:rsl-compiler-jre8:1.0.1')
+	compileOnly('com.mageddo:rsl:1.0.0')
+	annotationProcessor('com.mageddo:rsl-compiler:1.0.1')
 
-	testCompileOnly('com.mageddo:rsl:1.0.1')
-	testAnnotationProcessor('com.mageddo:rsl-compiler-jre8:1.0.1')
+	testCompileOnly('com.mageddo:rsl:1.0.0')
+	testAnnotationProcessor('com.mageddo:rsl-compiler:1.0.1')
 
 	testCompile 'junit:junit:4.12'
 }
