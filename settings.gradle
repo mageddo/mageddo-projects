@@ -1,8 +1,8 @@
 rootProject.name = 'mageddo-projects'
 
+include 'commons'
+include 'feature-switch'
 include 'spring-profile'
 include 'spring-log-tracer'
 include 'spring-kafka'
 include 'spring-hawtio'
-include 'feature-switch'
-include 'commons'
