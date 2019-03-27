@@ -3,10 +3,10 @@ package com.mageddo.kafka.producer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Versioned;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mageddo.kafka.CommitPhase;
 import com.mageddo.kafka.HeaderKeys;
 import com.mageddo.kafka.KafkaUtils;
 import com.mageddo.kafka.exception.KafkaPostException;
-import com.mageddo.kafka.exception.KafkaUnfinishedPostException;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.header.internals.RecordHeader;
@@ -22,7 +22,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-import static com.mageddo.kafka.RetryUtils.retryTemplate;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
@@ -49,6 +48,11 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 
 	@Override
 	public ListenableFuture<SendResult> send(ProducerRecord r) {
+		return send(r, CommitPhase.AFTER_COMMIT);
+	}
+
+	@Override
+	public ListenableFuture<SendResult> send(ProducerRecord r, CommitPhase commitPhase) {
 		if (!isSynchronizationActive()) {
 			return kafkaTemplate.send(r);
 		}
@@ -60,34 +64,15 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 			registerSynchronization(new TransactionSynchronizationAdapter() {
 				@Override
 				public void beforeCommit(boolean readOnly) {
-					final StopWatch stopWatch = new StopWatch();
-					stopWatch.start();
-					try {
-						for(; !messageStatus.allProcessed() ;) {
+					if(commitPhase == CommitPhase.BEFORE_COMMIT){
+						kafkaPostEnsure(messageStatus);
+					}
+				}
 
-							if (messageStatus.getError() != 0) {
-								throw new KafkaPostException(String.format("an error occurred on message post, errors=%d", messageStatus.getError()));
-							}
-							if(messageStatus.getLastMessageSent().isDone()){
-								waitSomeTime();
-							} else {
-								try {
-									messageStatus.getLastMessageSent().get();
-								} catch (Exception e) {
-									throw new KafkaPostException(e);
-								}
-							}
-						}
-						logger.debug(
-							"m=send, status=committed, expectToSend={}, sent={}, error={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
-						);
-					} catch (KafkaPostException e) {
-						logger.warn(
-							"m=send, status=rollback, expectToSend={}, sent={}, error={}, time={}",
-							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
-						);
-						throw e;
+				@Override
+				public void afterCommit() {
+					if(commitPhase == CommitPhase.AFTER_COMMIT){
+						kafkaPostEnsure(messageStatus);
 					}
 				}
 
@@ -111,14 +96,6 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 			messageStatus.addError();
 		});
 		return listenableFuture;
-	}
-
-	private void waitSomeTime() {
-		try {
-			Thread.sleep(1);
-		} catch (InterruptedException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	@Override
@@ -183,5 +160,45 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 	@Override
 	public ListenableFuture<SendResult> sendAsync(ProducerRecord r) {
 		return kafkaTemplate.send(r);
+	}
+
+	private void kafkaPostEnsure(MessageStatus messageStatus) {
+		final StopWatch stopWatch = new StopWatch();
+		stopWatch.start();
+		try {
+			for(; !messageStatus.allProcessed() ;) {
+
+				if (messageStatus.getError() != 0) {
+					throw new KafkaPostException(String.format("an error occurred on message post, errors=%d", messageStatus.getError()));
+				}
+				if(messageStatus.getLastMessageSent().isDone()){
+					waitSomeTime();
+				} else {
+					try {
+						messageStatus.getLastMessageSent().get();
+					} catch (Exception e) {
+						throw new KafkaPostException(e);
+					}
+				}
+			}
+			logger.debug(
+				"m=send, status=committed, expectToSend={}, sent={}, error={}, time={}",
+				messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
+			);
+		} catch (KafkaPostException e) {
+			logger.warn(
+				"m=send, status=rollback, expectToSend={}, sent={}, error={}, time={}",
+				messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
+			);
+			throw e;
+		}
+	}
+
+	private void waitSomeTime() {
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }

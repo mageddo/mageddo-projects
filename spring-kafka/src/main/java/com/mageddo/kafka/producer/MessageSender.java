@@ -1,6 +1,7 @@
 package com.mageddo.kafka.producer;
 
 import com.fasterxml.jackson.core.Versioned;
+import com.mageddo.kafka.CommitPhase;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.support.SendResult;
@@ -11,11 +12,13 @@ import java.util.List;
 
 public interface MessageSender {
 
+	ListenableFuture<SendResult> send(ProducerRecord r);
+
 	/**
 	 * Send messages without blocking but granting server ACK and rollback database transaction throwing an exception
 	 * when all messages were not acknowledged by the server
 	 */
-	ListenableFuture<SendResult> send(ProducerRecord r);
+	ListenableFuture<SendResult> send(ProducerRecord r, CommitPhase commitPhase);
 
 	List<ListenableFuture<SendResult>> send(String topic, Collection list);
 
