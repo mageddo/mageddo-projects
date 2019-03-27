@@ -58,27 +58,27 @@ public class MessageSenderImpl implements MessageSender {
 					final StopWatch stopWatch = new StopWatch();
 					stopWatch.start();
 					try {
-						retryTemplate(Integer.MAX_VALUE, 100, 1.5, KafkaUnfinishedPostException.class).execute(ctx -> {
+						for(; !messageStatus.allProcessed() ;) {
 
-							if(messageStatus.getError() != 0){
+							if (messageStatus.getError() != 0) {
 								throw new KafkaPostException(String.format("an error occurred on message post, errors=%d", messageStatus.getError()));
 							}
-							if (!messageStatus.allProcessed()) {
+							if(messageStatus.getLastMessageSent().isDone()){
+								waitSomeTime();
+							} else {
 								try {
 									messageStatus.getLastMessageSent().get();
 								} catch (Exception e) {
 									throw new KafkaPostException(e);
 								}
-								throw new KafkaUnfinishedPostException(messageStatus);
 							}
-							return null;
-						});
-						logger.info(
+						}
+						logger.debug(
 							"m=send, status=committed, expectToSend={}, sent={}, error={}, time={}",
 							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
 						);
 					} catch (KafkaPostException e) {
-						logger.info(
+						logger.warn(
 							"m=send, status=rollback, expectToSend={}, sent={}, error={}, time={}",
 							messageStatus.getExpectToSend(), messageStatus.getSuccess(), messageStatus.getError(), stopWatch.getTotalTimeMillis()
 						);
@@ -106,6 +106,14 @@ public class MessageSenderImpl implements MessageSender {
 			messageStatus.addError();
 		});
 		return listenableFuture;
+	}
+
+	private void waitSomeTime() {
+		try {
+			Thread.sleep(1);
+		} catch (InterruptedException e) {
+			throw new RuntimeException(e);
+		}
 	}
 
 	@Override

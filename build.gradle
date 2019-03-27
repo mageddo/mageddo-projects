@@ -188,7 +188,7 @@ project(':spring-log-tracer'){
 
 project(':spring-kafka') {
 	archivesBaseName = 'spring-kafka'
-	version '2.0.1'
+	version '2.0.2'
 
 	dependencies {
 
