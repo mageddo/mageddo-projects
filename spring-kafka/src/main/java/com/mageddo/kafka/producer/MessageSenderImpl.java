@@ -26,6 +26,11 @@ import static com.mageddo.kafka.RetryUtils.retryTemplate;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
+/**
+ * All messages sent to kafka on this Service are transactional and just will permit the database transaction
+ * to commit after Kafka ACK for all those sent messages. If you wanna to send messages without a transaction please
+ * do not open a transaction or check {@link MessageSenderAsync} methods, they are not transactional
+ */
 public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 
 	private final ThreadLocal<MessageStatus> messageStatusThreadLocal = ThreadLocal.withInitial(MessageStatus::new);
