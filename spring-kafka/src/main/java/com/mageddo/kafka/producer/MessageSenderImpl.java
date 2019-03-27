@@ -26,7 +26,7 @@ import static com.mageddo.kafka.RetryUtils.retryTemplate;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
 
-public class MessageSenderImpl implements MessageSender {
+public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 
 	private final ThreadLocal<MessageStatus> messageStatusThreadLocal = ThreadLocal.withInitial(MessageStatus::new);
 	private final Logger logger = LoggerFactory.getLogger(getClass());
@@ -175,4 +175,8 @@ public class MessageSenderImpl implements MessageSender {
 		}
 	}
 
+	@Override
+	public ListenableFuture<SendResult> sendAsync(ProducerRecord r) {
+		return kafkaTemplate.send(r);
+	}
 }

@@ -12,8 +12,8 @@ import java.util.List;
 public interface MessageSender {
 
 	/**
-	 * Send messages grating server ACK and rollbacking database transaction and throws exception if not
-	 * @param r
+	 * Send messages without blocking but granting server ACK and rollback database transaction throwing an exception
+	 * when all messages were not acknowledged by the server
 	 */
 	ListenableFuture<SendResult> send(ProducerRecord r);
 
