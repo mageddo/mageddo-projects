@@ -48,7 +48,7 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 
 	@Override
 	public ListenableFuture<SendResult> send(ProducerRecord r) {
-		return send(r, CommitPhase.AFTER_COMMIT);
+		return send(r, CommitPhase.BEFORE_COMMIT);
 	}
 
 	@Override
