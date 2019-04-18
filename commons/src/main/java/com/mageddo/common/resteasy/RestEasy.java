@@ -14,6 +14,7 @@ import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
 import java.time.Duration;
+import java.util.function.Consumer;
 
 public final class RestEasy {
 
@@ -30,11 +31,15 @@ public final class RestEasy {
 	}
 
 	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize){
+		return newRestEasyBuilder(poolSize, (it) -> {});
+	}
+
+	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize, Consumer<HttpClientBuilder> httpClientBuilderConsumer){
 		final PoolingHttpClientConnectionManager pool = new PoolingHttpClientConnectionManager();
 		pool.setMaxTotal(poolSize);
 		// Senao vai estrangular o pool e deixar apenas duas conexoes serem usadas por host
 		pool.setDefaultMaxPerRoute(poolSize);
-		final CloseableHttpClient httpClient = HttpClientBuilder
+		final HttpClientBuilder httpClientBuilder = HttpClientBuilder
 			.create()
 			.setDefaultRequestConfig(
 				RequestConfig.custom()
@@ -45,9 +50,10 @@ public final class RestEasy {
 					.build()
 			)
 			.setConnectionManager(pool)
-			.build();
+		;
+		httpClientBuilderConsumer.accept(httpClientBuilder);
 		return new ResteasyClientBuilder()
-			.httpEngine(withPerRequestTimeout(httpClient))
+			.httpEngine(withPerRequestTimeout(httpClientBuilder.build()))
 		;
 	}
 
