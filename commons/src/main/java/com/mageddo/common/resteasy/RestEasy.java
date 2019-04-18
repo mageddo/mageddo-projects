@@ -1,13 +1,11 @@
 package com.mageddo.common.resteasy;
 
-import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.apache.http.protocol.HttpContext;
 import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
@@ -16,23 +14,22 @@ import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
 import java.time.Duration;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
-public class RestEasy {
+public final class RestEasy {
+
+	private RestEasy() {
+	}
 
 	public static final String SOCKET_TIMEOUT = "SOCKET_TIMEOUT";
 	public static final String CONNECT_TIMEOUT = "CONNECT_TIMEOUT";
 	public static final String CONNECTION_REQUEST_TIMEOUT = "CONNECTION_REQUEST_TIMEOUT";
 	public static final String FOLLOW_REDIRECTS = "FOLLOW_REDIRECTS";
 
-	public static final Map<HttpResponse, HttpContext> RESPONSES = new LinkedHashMap<>();
-
 	public static Client newClient(){
 		return newClient(10);
 	}
 
-	public static RestEasyClient newRestEasyClient(int poolSize){
+	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize){
 		final PoolingHttpClientConnectionManager pool = new PoolingHttpClientConnectionManager();
 		pool.setMaxTotal(poolSize);
 		// Senao vai estrangular o pool e deixar apenas duas conexoes serem usadas por host
@@ -49,10 +46,13 @@ public class RestEasy {
 			)
 			.setConnectionManager(pool)
 			.build();
-		return new RestEasyClient(new ResteasyClientBuilder()
+		return new ResteasyClientBuilder()
 			.httpEngine(withPerRequestTimeout(httpClient))
-			.build(), pool, httpClient
-		);
+		;
+	}
+
+	public static RestEasyClient newRestEasyClient(int poolSize){
+		return new RestEasyClient(newRestEasyBuilder(poolSize).build());
 	}
 
 	public static Client newClient(int poolSize){
