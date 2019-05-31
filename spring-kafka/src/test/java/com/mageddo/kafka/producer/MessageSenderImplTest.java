@@ -11,6 +11,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureTask;
 import org.springframework.util.concurrent.SettableListenableFuture;
 
 import java.util.concurrent.ExecutionException;
@@ -194,6 +196,32 @@ public class MessageSenderImplTest {
 	}
 
 	@Test
+	public void mustPostMessageAndCheckWhenTransactionWasCommittedAndAfterCommitPhaseUtilized() throws Exception {
+		// arrange
+		final var expectedListenableFuture = spy(new ListenableFutureTask<>(() -> new SendResult(null, null)));
+		doReturn(expectedListenableFuture).when(kafkaTemplate).send(any(ProducerRecord.class));
+
+		// act
+		Executors.newSingleThreadExecutor().submit(() -> {
+			sleep(300);
+			expectedListenableFuture.run();
+			System.out.println("ran");
+		});
+		final var returnedListenableFuture = conf.sendMessagePostCommit();
+
+		// assert
+		verify(kafkaTemplate).send(any(ProducerRecord.class));
+		verify(expectedListenableFuture, times(2)).get();
+		try {
+			returnedListenableFuture.get().getProducerRecord();
+			fail("method must throw exception");
+		} catch (UnsupportedOperationException e){
+			assertEquals("This is a fake record because the SendResult only will be generated after the transaction commit", e.getMessage());
+		}
+	}
+
+
+	@Test
 	public void mustPostPostButNotCheckIfMessageWasPostBecauseTransactionIsRollbackOnlyAndTheBeforeCommitPhaseWasUtilized() throws Exception {
 
 		// arrange
@@ -247,6 +275,11 @@ public class MessageSenderImplTest {
 		public ListenableFuture<SendResult> sendPostCommitWithRollback() {
 			currentTransactionStatus().setRollbackOnly();
 			return messageSender.send(new ProducerRecord("myTopic", "value"), CommitPhase.AFTER_COMMIT);
+		}
+
+		@Transactional
+		public ListenableFuture<SendResult> sendMessagePostCommit() {
+			return messageSender.send(new ProducerRecord("my-topic", "my-message"), CommitPhase.AFTER_COMMIT);
 		}
 	}
 

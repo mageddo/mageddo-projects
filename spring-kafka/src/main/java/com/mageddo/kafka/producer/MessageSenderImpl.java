@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.util.Assert;
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureTask;
@@ -25,6 +26,7 @@ import java.util.List;
 
 import static org.springframework.transaction.support.TransactionSynchronizationManager.isSynchronizationActive;
 import static org.springframework.transaction.support.TransactionSynchronizationManager.registerSynchronization;
+import static org.springframework.util.Assert.isTrue;
 
 /**
  * All messages sent to kafka on this Service are transactional and just will permit the database transaction
@@ -60,7 +62,25 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
+
 		final MessageStatus messageStatus = messageStatusThreadLocal.get();
+		final ListenableFuture<SendResult> sendResultListenableFuture;
+		if(commitPhase == CommitPhase.AFTER_COMMIT){
+			registerSynchronization(new TransactionSynchronizationAdapter() {
+				@Override
+				public void afterCommit() {
+					processMessageSend(r, messageStatus);
+				}
+			});
+			sendResultListenableFuture = new FakeListenableFuture();
+		} else {
+			sendResultListenableFuture = processMessageSend(r, messageStatus);
+		}
+		registerPostCheck(commitPhase, messageStatus);
+		return sendResultListenableFuture;
+	}
+
+	private void registerPostCheck(CommitPhase commitPhase, MessageStatus messageStatus) {
 		if(!messageStatus.getSynchronizationRegistered()) {
 			registerSynchronization(new TransactionSynchronizationAdapter() {
 				@Override
@@ -83,18 +103,6 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 				}
 			});
 			messageStatus.setSynchronizationRegistered(true);
-		}
-
-		if(commitPhase == CommitPhase.AFTER_COMMIT){
-			registerSynchronization(new TransactionSynchronizationAdapter() {
-				@Override
-				public void afterCommit() {
-					processMessageSend(r, messageStatus);
-				}
-			});
-			return new FakeListenableFuture();
-		} else {
-			return processMessageSend(r, messageStatus);
 		}
 	}
 
@@ -181,6 +189,7 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 		final StopWatch stopWatch = new StopWatch();
 		stopWatch.start();
 		try {
+			isTrue(messageStatus.getExpectToSend() > 0, "At least one message should be expected to be sent");
 			for(; !messageStatus.allProcessed() ;) {
 
 				if (messageStatus.getError() != 0) {
