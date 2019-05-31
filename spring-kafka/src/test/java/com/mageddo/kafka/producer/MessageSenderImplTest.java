@@ -1,9 +1,15 @@
 package com.mageddo.kafka.producer;
 
+import com.mageddo.kafka.CommitPhase;
 import com.mageddo.kafka.exception.KafkaPostException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
+import org.hamcrest.Matchers;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -22,6 +28,7 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.SettableListenableFuture;
 
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
@@ -32,6 +39,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -54,6 +62,11 @@ public class MessageSenderImplTest {
 	@Autowired
 	private Conf conf;
 
+	@Before
+	public void before(){
+		reset(kafkaTemplate);
+	}
+
 	@Test
 	public void mustSendWithWithoutWaitMessageCommitWhenThereIsNoDatabaseTransaction() throws Exception {
 
@@ -70,7 +83,7 @@ public class MessageSenderImplTest {
 	}
 
 	@Test
-	public void mustSendWithAndWaitMessageCommitWhenTransactionisActive() throws Exception {
+	public void mustSendAndWaitMessageCommitWhenTransactionIsActive() throws Exception {
 
 		// arrange
 		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
@@ -144,7 +157,7 @@ public class MessageSenderImplTest {
 
 	@Test
 	@Transactional
-	public void mustRegisterOneSynchronizationOnly() throws Exception {
+	public void mustRegisterOneSynchronizationOnly()  {
 
 		// arrange
 		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
@@ -164,7 +177,24 @@ public class MessageSenderImplTest {
 	}
 
 	@Test
-	public void mustNotPostMessageBecauseTransactionIsRollbackOnly() throws Exception {
+	public void mustNotPostMessageBecauseTransactionIsRollbackOnlyAndTheAfterCommitPhaseIsUtilized() throws Exception {
+		// arrange
+
+		// act
+		final ListenableFuture<SendResult> listenableFuture = conf.sendPostCommitWithRollback();
+
+		// assert
+		verify(kafkaTemplate, never()).send(any(ProducerRecord.class));
+		try {
+			listenableFuture.get().getProducerRecord();
+			fail("method must throw exception");
+		} catch (UnsupportedOperationException e){
+			assertEquals("This is a fake record because the SendResult only will be generated after the transaction commit", e.getMessage());
+		}
+	}
+
+	@Test
+	public void mustPostPostButNotCheckIfMessageWasPostBecauseTransactionIsRollbackOnlyAndTheBeforeCommitPhaseWasUtilized() throws Exception {
 
 		// arrange
 		doReturn(mock(ListenableFuture.class)).when(kafkaTemplate).send(any(ProducerRecord.class));
@@ -174,6 +204,7 @@ public class MessageSenderImplTest {
 
 		// assert
 		verify(listenableFuture, never()).get();
+		verify(kafkaTemplate).send(any(ProducerRecord.class));
 	}
 
 
@@ -210,6 +241,12 @@ public class MessageSenderImplTest {
 		public ListenableFuture<SendResult> sendWithRollback() {
 			currentTransactionStatus().setRollbackOnly();
 			return send();
+		}
+
+		@Transactional
+		public ListenableFuture<SendResult> sendPostCommitWithRollback() {
+			currentTransactionStatus().setRollbackOnly();
+			return messageSender.send(new ProducerRecord("myTopic", "value"), CommitPhase.AFTER_COMMIT);
 		}
 	}
 

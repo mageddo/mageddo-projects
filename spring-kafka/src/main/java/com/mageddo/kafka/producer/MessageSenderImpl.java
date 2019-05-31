@@ -17,6 +17,7 @@ import org.springframework.kafka.support.SendResult;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.util.StopWatch;
 import org.springframework.util.concurrent.ListenableFuture;
+import org.springframework.util.concurrent.ListenableFutureTask;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -84,6 +85,20 @@ public class MessageSenderImpl implements MessageSender, MessageSenderAsync {
 			messageStatus.setSynchronizationRegistered(true);
 		}
 
+		if(commitPhase == CommitPhase.AFTER_COMMIT){
+			registerSynchronization(new TransactionSynchronizationAdapter() {
+				@Override
+				public void afterCommit() {
+					processMessageSend(r, messageStatus);
+				}
+			});
+			return new FakeListenableFuture();
+		} else {
+			return processMessageSend(r, messageStatus);
+		}
+	}
+
+	private ListenableFuture<SendResult> processMessageSend(ProducerRecord r, MessageStatus messageStatus) {
 		final ListenableFuture<SendResult> listenableFuture = kafkaTemplate.send(r);
 		messageStatus.setLastMessageSent(listenableFuture);
 		messageStatus.addExpectSent();
