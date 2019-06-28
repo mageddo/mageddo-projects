@@ -3,18 +3,21 @@ package com.mageddo.common.resteasy;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
-import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
-import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
-import org.jboss.resteasy.client.jaxrs.ClientHttpEngine;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
 
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
+import java.security.KeyManagementException;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.security.cert.X509Certificate;
 import java.time.Duration;
-import java.util.function.Consumer;
 
 public final class RestEasy {
 
@@ -30,16 +33,53 @@ public final class RestEasy {
 		return newClient(10);
 	}
 
-	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize){
-		return newRestEasyBuilder(poolSize, (it) -> {});
+	public static Client newClient(int poolSize){
+		return newRestEasyClient(poolSize).getClient();
 	}
 
-	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize, Consumer<HttpClientBuilder> httpClientBuilderConsumer){
-		final PoolingHttpClientConnectionManager pool = new PoolingHttpClientConnectionManager();
-		pool.setMaxTotal(poolSize);
-		// Senao vai estrangular o pool e deixar apenas duas conexoes serem usadas por host
-		pool.setDefaultMaxPerRoute(poolSize);
-		final HttpClientBuilder httpClientBuilder = HttpClientBuilder
+	public static Client newClient(int poolSize, boolean insecure){
+		final HttpClientBuilder clientBuilder = defaultHttpClientBuilder(poolSize);
+		if(insecure){
+			clientBuilder
+				.setSSLContext(createFakeSSLContext())
+				.setSSLHostnameVerifier((a,b) -> true)
+			;
+		}
+		return newRestEasyBuilder(clientBuilder).build();
+	}
+
+	private static SSLContext createFakeSSLContext() {
+		try {
+			final SSLContext sslcontext = SSLContext.getInstance("TLS");
+			sslcontext.init(null, new TrustManager[]{new X509TrustManager() {
+				public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
+				public void checkServerTrusted(X509Certificate[] arg0, String arg1) {}
+				public X509Certificate[] getAcceptedIssuers() {
+					return new X509Certificate[0];
+				}
+			}}, new SecureRandom());
+			return sslcontext;
+		} catch (NoSuchAlgorithmException | KeyManagementException e) {
+			throw new RuntimeException(e);
+		}
+	}
+
+	public static RestEasyClient newRestEasyClient(int poolSize){
+		return new RestEasyClient(newRestEasyBuilder(poolSize).build());
+	}
+
+	public static ResteasyClientBuilder newRestEasyBuilder(int poolSize){
+		return newRestEasyBuilder(defaultHttpClientBuilder(poolSize));
+	}
+
+	public static ResteasyClientBuilder newRestEasyBuilder(HttpClientBuilder clientBuilder) {
+		return new ResteasyClientBuilder()
+			.httpEngine(withPerRequestTimeout(clientBuilder.build()))
+			;
+	}
+
+	public static HttpClientBuilder defaultHttpClientBuilder(int poolSize) {
+		return HttpClientBuilder
 			.create()
 			.setDefaultRequestConfig(
 				RequestConfig.custom()
@@ -49,20 +89,9 @@ public final class RestEasy {
 					.setRedirectsEnabled(false)
 					.build()
 			)
-			.setConnectionManager(pool)
+			.setMaxConnTotal(poolSize)
+			.setMaxConnPerRoute(poolSize)
 		;
-		httpClientBuilderConsumer.accept(httpClientBuilder);
-		return new ResteasyClientBuilder()
-			.httpEngine(withPerRequestTimeout(httpClientBuilder.build()))
-		;
-	}
-
-	public static RestEasyClient newRestEasyClient(int poolSize){
-		return new RestEasyClient(newRestEasyBuilder(poolSize).build());
-	}
-
-	public static Client newClient(int poolSize){
-		return newRestEasyClient(poolSize).getClient();
 	}
 
 	static Integer parseIntegerOrNull(Configuration conf, String key) {
@@ -90,7 +119,7 @@ public final class RestEasy {
 	 * @see #CONNECT_TIMEOUT
 	 * @see #SOCKET_TIMEOUT
 	 */
-	static ClientHttpEngine withPerRequestTimeout(HttpClient httpClient) {
+	public static ApacheHttpClient43Engine withPerRequestTimeout(HttpClient httpClient) {
 		return new ApacheHttpClient43Engine(httpClient){
 			@Override
 			protected void loadHttpMethod(ClientInvocation request, HttpRequestBase httpMethod) throws Exception {
