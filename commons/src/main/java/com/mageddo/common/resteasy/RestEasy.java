@@ -48,7 +48,7 @@ public final class RestEasy {
 		return newRestEasyBuilder(clientBuilder).build();
 	}
 
-	private static SSLContext createFakeSSLContext() {
+	public static SSLContext createFakeSSLContext() {
 		try {
 			final SSLContext sslcontext = SSLContext.getInstance("TLS");
 			sslcontext.init(null, new TrustManager[]{new X509TrustManager() {
