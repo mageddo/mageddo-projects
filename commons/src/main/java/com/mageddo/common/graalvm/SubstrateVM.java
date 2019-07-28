@@ -9,11 +9,14 @@ import java.lang.reflect.Method;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-public class ReflectionClasses {
+public class SubstrateVM {
 
 	public static final boolean PROCESS_CONSTRUCTORS = true;
 	public static final boolean PROCESS_METHODS = true;
 	public static final boolean PROCESS_FIELDS = false;
+
+	private SubstrateVM() {
+	}
 
 	public static void process(Class<?> ... classes) {
 		process(PROCESS_CONSTRUCTORS, PROCESS_METHODS, PROCESS_FIELDS, classes);
