@@ -1,5 +1,7 @@
 package com.mageddo.common.graalvm;
 
+import org.graalvm.nativeimage.ImageSingletons;
+import org.graalvm.nativeimage.LogHandler;
 import org.graalvm.nativeimage.hosted.RuntimeReflection;
 
 import java.lang.reflect.Constructor;
@@ -64,6 +66,10 @@ public class SubstrateVM {
 		} catch (Exception e){
 			e.printStackTrace();
 		}
+	}
+
+	public static void supressWarnings(){
+		ImageSingletons.add(LogHandler.class, new NopLogHandler());
 	}
 
 	private static String toSignature(Executable executable){
