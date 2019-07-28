@@ -18,6 +18,10 @@ public class SubstrateVM {
 	private SubstrateVM() {
 	}
 
+	public SubstrateVMProcessBuilder builder(){
+		return new SubstrateVMProcessBuilder();
+	}
+
 	public static void process(Class<?> ... classes) {
 		process(PROCESS_CONSTRUCTORS, PROCESS_METHODS, PROCESS_FIELDS, classes);
 	}
