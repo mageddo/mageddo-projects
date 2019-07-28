@@ -18,7 +18,7 @@ public class SubstrateVM {
 	private SubstrateVM() {
 	}
 
-	public SubstrateVMProcessBuilder builder(){
+	public static SubstrateVMProcessBuilder builder(){
 		return new SubstrateVMProcessBuilder();
 	}
 
