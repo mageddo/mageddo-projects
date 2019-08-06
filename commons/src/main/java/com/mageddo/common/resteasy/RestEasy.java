@@ -1,5 +1,6 @@
 package com.mageddo.common.resteasy;
 
+import com.mageddo.common.net.ssl.MockSSLUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -18,6 +19,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 import java.time.Duration;
+
+import static com.mageddo.common.net.ssl.MockSSLUtils.createFakeHostnameVerifier;
+import static com.mageddo.common.net.ssl.MockSSLUtils.setupFakeSSLContext;
 
 public final class RestEasy {
 
@@ -41,27 +45,11 @@ public final class RestEasy {
 		final HttpClientBuilder clientBuilder = defaultHttpClientBuilder(poolSize);
 		if(insecure){
 			clientBuilder
-				.setSSLContext(createFakeSSLContext())
-				.setSSLHostnameVerifier((a,b) -> true)
+				.setSSLContext(setupFakeSSLContext())
+				.setSSLHostnameVerifier(createFakeHostnameVerifier())
 			;
 		}
 		return newRestEasyBuilder(clientBuilder).build();
-	}
-
-	public static SSLContext createFakeSSLContext() {
-		try {
-			final SSLContext sslcontext = SSLContext.getInstance("TLS");
-			sslcontext.init(null, new TrustManager[]{new X509TrustManager() {
-				public void checkClientTrusted(X509Certificate[] arg0, String arg1) {}
-				public void checkServerTrusted(X509Certificate[] arg0, String arg1) {}
-				public X509Certificate[] getAcceptedIssuers() {
-					return new X509Certificate[0];
-				}
-			}}, new SecureRandom());
-			return sslcontext;
-		} catch (NoSuchAlgorithmException | KeyManagementException e) {
-			throw new RuntimeException(e);
-		}
 	}
 
 	public static RestEasyClient newRestEasyClient(int poolSize){
