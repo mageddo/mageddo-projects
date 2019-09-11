@@ -20,9 +20,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import javax.jms.ConnectionFactory;
 
-@SpringBootTest
+@SpringBootTest(classes = FruitMDBTest.Config.class)
 @RunWith(SpringRunner.class)
-@ContextConfiguration(classes = FruitMDBTest.Config.class)
+//@ContextConfiguration()
 public class FruitMDBTest {
 
 	@Autowired
@@ -43,6 +43,9 @@ public class FruitMDBTest {
 	@EnableJms
 	@SpringBootApplication
 	public static class Config implements InitializingBean {
+
+		@Autowired
+		private ConnectionFactory connectionFactory;
 
 		@Autowired
 		private JmsConsumerDeclarer jmsConsumerDeclarer;
