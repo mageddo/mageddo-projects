@@ -72,7 +72,7 @@ public class JmsConsumerDeclarer implements SchedulingConfigurer {
 		}
 		factory.setAutoStartup(false);
 		factory.setErrorHandler(t -> {
-			logger.error("status=deu-erro", t);
+			logger.error("status=failed-on-consume", t);
 		});
 		beanFactory.registerSingleton(topic.getFactory(), factory);
 	}

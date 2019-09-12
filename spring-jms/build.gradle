@@ -10,12 +10,11 @@ targetCompatibility = JavaVersion.VERSION_1_8
 
 dependencies {
 
-	compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.4.RELEASE'
+	compile "org.springframework.retry:spring-retry:1.2.4.RELEASE"
+	compile "com.mageddo:commons:1.6.0"
 	compile "org.springframework.boot:spring-boot-starter-activemq:2.1.7.RELEASE"
 	testCompile "org.springframework.boot:spring-boot-starter-test:2.1.7.RELEASE"
 	testCompile("org.apache.activemq:activemq-broker:5.15.9")
-//	testCompile("org.apache.activemq:activemq-spring:5.14.5")
-//	testCompile("org.apache.activemq:activemq-pool:5.14.5")
 	testCompile("junit:junit:4.12")
 
 }

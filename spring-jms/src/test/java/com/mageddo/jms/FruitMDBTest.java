@@ -1,7 +1,10 @@
 package com.mageddo.jms;
 
+import org.apache.activemq.command.ActiveMQTextMessage;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
+import org.mockito.internal.matchers.Null;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
@@ -22,6 +25,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(classes = FruitMDBTest.Config.class)
 @RunWith(SpringRunner.class)
@@ -30,8 +35,11 @@ public class FruitMDBTest {
 	@Autowired
 	private JmsTemplate jmsTemplate;
 
+	@Autowired
+	private FruitMDB fruitMDB;
+
 	@Test
-	public void shouldConsume() throws Exception {
+	public void shouldPublishAndConsumeMessageUsingMessageBroker() throws Exception {
 
 		// arrange
 
@@ -43,6 +51,25 @@ public class FruitMDBTest {
 		TimeUnit.MILLISECONDS.sleep(500);
 		assertEquals(1, FruitMDB.messages.size());
 		assertEquals("hello world", FruitMDB.messages.get(0));
+	}
+
+	@Test
+	public void shouldRetryFailedMessage() throws Exception {
+
+		// arrange
+		final var message = new ActiveMQTextMessage();
+
+		// act
+		final var spyMdb = Mockito.spy(fruitMDB);
+		try {
+			spyMdb.consume(message);
+		} catch (NullPointerException e){
+			assertEquals("message can't be null", e.getMessage());
+		}
+
+		// assert
+		verify(spyMdb, times(3)).doConsume(Mockito.any());
+
 	}
 
 	@EnableJms

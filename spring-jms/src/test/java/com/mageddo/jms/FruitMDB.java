@@ -13,21 +13,34 @@ import javax.jms.Message;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.mageddo.jms.TopicEnum.Constants.FRUIT_FACTORY;
 import static com.mageddo.jms.TopicEnum.Constants.FRUIT_TOPIC;
 
 @Component
-public class FruitMDB {
+public class FruitMDB implements TopicConsumer {
 
 	public static final List<String> messages = new ArrayList<>();
 
 	private final Logger logger = LoggerFactory.getLogger(getClass());
 
 	@JmsListener(containerFactory = FRUIT_FACTORY, destination = FRUIT_TOPIC)
-	public void consume(ActiveMQTextMessage message) throws JMSException {
-		final var msg = message.getText();
+	public void consume(ActiveMQTextMessage message) throws Exception {
+		withRetry(ctx -> {
+			doConsume(message);
+			return null;
+		});
+	}
+
+	void doConsume(ActiveMQTextMessage message) throws JMSException {
+		final var msg = Objects.requireNonNull(message.getText(), "message can't be null");
 		messages.add(msg);
 		logger.info("msg={}", msg);
+	}
+
+	@Override
+	public TopicDefinition topic() {
+		return TopicEnum.FRUIT.getTopic();
 	}
 }
