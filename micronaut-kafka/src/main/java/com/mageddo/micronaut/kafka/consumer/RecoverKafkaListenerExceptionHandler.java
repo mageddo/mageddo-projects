@@ -10,7 +10,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.ExecutionException;
 
-import static com.mageddo.micronaut.kafka.consumer.ApplicationContextProvider.context;
+import static com.mageddo.micronaut.kafka.ApplicationContextProvider.context;
 
 public interface RecoverKafkaListenerExceptionHandler extends KafkaListenerExceptionHandler {
 

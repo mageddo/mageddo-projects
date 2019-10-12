@@ -7,5 +7,8 @@
 	<root level="INFO">
 		<appender-ref ref="STDOUT" />
 	</root>
-	<logger name="org.apache.spark" level="DEBUG" />
+	<logger name="org.apache.zookeeper" level="WARN" />
+	<logger name="org.apache.kafka" level="WARN" />
+	<logger name="kafka" level="WARN" />
+	<logger name="io.micronaut" level="INFO" />
 </configuration>

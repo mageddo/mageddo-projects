@@ -1,6 +1,7 @@
 kafka:
+  embedded.enabled: true
   bootstrap:
-    servers: kafka.intranet:9092
+    servers: localhost:9092
   consumers:
     vanilla:
       key:
