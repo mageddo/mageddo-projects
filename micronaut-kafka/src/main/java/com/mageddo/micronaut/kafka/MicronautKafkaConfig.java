@@ -5,7 +5,7 @@ import lombok.RequiredArgsConstructor;
 import javax.inject.Singleton;
 
 @Singleton
-@RequiredArgsConstructor()
-public class App {
+@RequiredArgsConstructor
+public class MicronautKafkaConfig {
 	private final ApplicationContextProvider applicationContextProvider;
 }

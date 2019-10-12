@@ -11,6 +11,7 @@ import java.util.concurrent.Future;
 @Singleton
 public class KafkaProducerDefault implements KafkaProducer {
 
+	@KafkaClient("vanilla")
 	private final Producer<String, byte[]>  producer;
 
 	public KafkaProducerDefault(@KafkaClient("vanilla") Producer<String, byte[]> producer) {

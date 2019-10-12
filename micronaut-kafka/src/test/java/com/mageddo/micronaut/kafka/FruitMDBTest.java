@@ -27,7 +27,7 @@ class FruitMDBTest {
 	private FruitMDB fruitMDB;
 
 	@Inject
-	private App app;
+	private MicronautKafkaConfig micronautKafkaConfig;
 
 	@BeforeEach
 	public void before() throws InterruptedException {
