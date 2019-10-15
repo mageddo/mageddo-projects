@@ -1,4 +1,4 @@
-package com.mageddo.kafka.handler;
+package com.mageddo.kafka.producer.handler;
 
 import com.mageddo.kafka.exception.KafkaPostException;
 import org.apache.commons.lang3.Validate;

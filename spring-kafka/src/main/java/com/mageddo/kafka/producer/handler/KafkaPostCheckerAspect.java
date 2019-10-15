@@ -1,4 +1,4 @@
-package com.mageddo.kafka.handler;
+package com.mageddo.kafka.producer.handler;
 
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -19,7 +19,7 @@ public class KafkaPostCheckerAspect {
 		this.kafkaPostChecker = new KafkaPostChecker();
 	}
 
-	@Around("")
+	@Around("@annotation(EnsureKafkaPost)")
 	public Object enableEnsureKafkaPost(ProceedingJoinPoint joinPoint) throws Throwable {
 		try {
 			final KafkaPost kafkaPost = kafkaPostThreadLocal.get();
@@ -32,7 +32,7 @@ public class KafkaPostCheckerAspect {
 		}
 	}
 
-	@Around("")
+	@Around("execution(* *..*MessageSender.*(..))")
 	public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 		final KafkaPost kafkaPost = kafkaPostThreadLocal.get();
 		if(!kafkaPost.isEnabled()){

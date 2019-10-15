@@ -1,4 +1,4 @@
-package com.mageddo.kafka.handler;
+package com.mageddo.kafka.producer.handler;
 
 import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;

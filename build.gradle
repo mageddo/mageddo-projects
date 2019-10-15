@@ -198,15 +198,13 @@ project(':spring-kafka') {
 
 		provided group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
 		provided group: 'org.springframework.kafka', name: 'spring-kafka', version: springKafkaVersion
+		provided group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion
 		provided group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.9.5'
 		provided group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
-		provided group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: '2.1.9.RELEASE'
 
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 		testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
 		testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
-		testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc', version: springBootVersion
-		testCompile group: 'org.hsqldb', name: 'hsqldb', version: '2.2.8'
 
 	}
 }

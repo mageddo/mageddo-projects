@@ -1,6 +1,6 @@
 package com.mageddo.kafka.exception;
 
-import com.mageddo.kafka.handler.KafkaPost;
+import com.mageddo.kafka.producer.handler.KafkaPost;
 import org.apache.kafka.common.KafkaException;
 
 public class KafkaPostException extends KafkaException {
