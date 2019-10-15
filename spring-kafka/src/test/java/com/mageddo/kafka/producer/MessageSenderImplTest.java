@@ -1,17 +1,11 @@
 package com.mageddo.kafka.producer;
 
-import com.mageddo.kafka.CommitPhase;
 import com.mageddo.kafka.exception.KafkaPostException;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.errors.TimeoutException;
-import org.hamcrest.Matchers;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration;
@@ -30,21 +24,11 @@ import org.springframework.util.concurrent.ListenableFuture;
 import org.springframework.util.concurrent.ListenableFutureTask;
 import org.springframework.util.concurrent.SettableListenableFuture;
 
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executors;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 import static org.springframework.transaction.interceptor.TransactionAspectSupport.currentTransactionStatus;
 
 @RunWith(SpringRunner.class)
@@ -274,12 +258,12 @@ public class MessageSenderImplTest {
 		@Transactional
 		public ListenableFuture<SendResult> sendPostCommitWithRollback() {
 			currentTransactionStatus().setRollbackOnly();
-			return messageSender.send(new ProducerRecord("myTopic", "value"), CommitPhase.AFTER_COMMIT);
+			return messageSender.send(new ProducerRecord<>("myTopic", "value"));
 		}
 
 		@Transactional
 		public ListenableFuture<SendResult> sendMessagePostCommit() {
-			return messageSender.send(new ProducerRecord("my-topic", "my-message"), CommitPhase.AFTER_COMMIT);
+			return messageSender.send(new ProducerRecord<>("my-topic", "my-message"));
 		}
 	}
 

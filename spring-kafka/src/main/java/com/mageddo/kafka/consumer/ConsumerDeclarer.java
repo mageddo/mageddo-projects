@@ -77,9 +77,9 @@ public class ConsumerDeclarer implements SchedulingConfigurer {
 		final RetryStrategy retryStrategy = topic.getRetryStrategy();
 		if(retryStrategy == null){
 			final ExponentialBackOffPolicy policy = new ExponentialBackOffPolicy();
-			policy.setInitialInterval(topic.getInterval());
+			policy.setInitialInterval(topic.getInterval().toMillis());
 			policy.setMultiplier(1.0);
-			policy.setMaxInterval(topic.getMaxInterval());
+			policy.setMaxInterval(topic.getMaxInterval().toMillis());
 
 			final SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
 			retryPolicy.setMaxAttempts(topic.getMaxTries());

@@ -3,6 +3,7 @@ package com.mageddo.kafka;
 import com.mageddo.kafka.consumer.RetryStrategy;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
+import java.time.Duration;
 import java.util.Map;
 
 public interface TopicDefinition {
@@ -13,7 +14,9 @@ public interface TopicDefinition {
 
 	String getFactory();
 
-	long getInterval();
+	Duration getInterval();
+
+	Duration getMaxInterval();
 
 	int getMaxTries();
 
@@ -23,7 +26,7 @@ public interface TopicDefinition {
 
 	Map<String, Object> getProps();
 
-	long getMaxInterval();
-
 	RetryStrategy getRetryStrategy();
+
+	String getGroupId();
 }
