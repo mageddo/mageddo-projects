@@ -9,6 +9,8 @@ public interface MessageSender {
 
 	ListenableFuture<SendResult> send(ProducerRecord r);
 
+	SendResult sendSync(ProducerRecord r);
+
 	ListenableFuture<SendResult> send(ProducerRecord r, Throwable t);
 
 	ListenableFuture<SendResult> sendDLQ(String dlqTopic, ConsumerRecord r, Throwable t);

@@ -10,6 +10,8 @@ public interface TopicDefinition {
 
 	String getName();
 
+	String getDlqName();
+
 	Integer getConsumers();
 
 	String getFactory();
