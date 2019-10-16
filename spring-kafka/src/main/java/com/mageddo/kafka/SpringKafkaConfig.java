@@ -10,7 +10,6 @@ import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -20,7 +19,6 @@ import org.springframework.scheduling.support.CronTrigger;
 @EnableKafka
 @EnableScheduling
 @Configuration
-@EnableAspectJAutoProxy(proxyTargetClass = true)
 public class SpringKafkaConfig {
 
 	@Bean
