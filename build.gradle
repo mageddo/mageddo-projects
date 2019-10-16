@@ -205,6 +205,7 @@ project(':spring-kafka') {
 		testCompile group: 'junit', name: 'junit', version: '4.12'
 		testCompile group: 'org.mockito', name: 'mockito-core', version: '2.23.4'
 		testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test', version: springBootVersion
+		testCompile group: 'org.springframework.kafka', name: 'spring-kafka-test', version: springKafkaVersion
 
 	}
 }

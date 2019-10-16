@@ -1,23 +1,18 @@
 package com.mageddo.kafka.producer.handler;
 
+import lombok.RequiredArgsConstructor;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.kafka.support.SendResult;
-import org.springframework.stereotype.Component;
 import org.springframework.util.concurrent.ListenableFuture;
 
-@Component
 @Aspect
+@RequiredArgsConstructor
 public class KafkaPostCheckerAspect {
 
 	private final ThreadLocal<KafkaPost> kafkaPostThreadLocal;
 	private final KafkaPostChecker kafkaPostChecker;
-
-	public KafkaPostCheckerAspect() {
-		this.kafkaPostThreadLocal = ThreadLocal.withInitial(KafkaPost::new);
-		this.kafkaPostChecker = new KafkaPostChecker();
-	}
 
 	@Around("@annotation(EnsureKafkaPost)")
 	public Object enableEnsureKafkaPost(ProceedingJoinPoint joinPoint) throws Throwable {

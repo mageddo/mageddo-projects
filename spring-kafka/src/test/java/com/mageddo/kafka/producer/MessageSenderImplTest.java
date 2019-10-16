@@ -1,148 +1,145 @@
 package com.mageddo.kafka.producer;
 
 import com.mageddo.kafka.SpringKafkaConfig;
-import com.mageddo.kafka.exception.KafkaPostException;
 import com.mageddo.kafka.producer.handler.EnsureKafkaPost;
+import com.mageddo.kafka.producer.handler.KafkaPost;
+import com.mageddo.kafka.producer.handler.KafkaPostChecker;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.errors.TimeoutException;
-import org.junit.Before;
+import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jsonb.JsonbAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.EnableAspectJAutoProxy;
-import org.springframework.context.annotation.Primary;
-import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.test.rule.EmbeddedKafkaRule;
 import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.concurrent.ListenableFuture;
-import org.springframework.util.concurrent.SettableListenableFuture;
 
-import java.util.concurrent.Executors;
+import java.util.List;
 
-import static org.junit.Assert.fail;
+import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
-@ContextConfiguration(classes = MessageSenderImplTest.Conf.class)
-@EnableAspectJAutoProxy(proxyTargetClass = true)
-@EnableTransactionManagement
-@SpringBootApplication(exclude = JsonbAutoConfiguration.class)
-@SpringBootTest(classes = {SpringKafkaConfig.class})
+@SpringBootApplication
+@SpringBootTest(classes = {
+	SpringKafkaConfig.class, MessageSenderImplTest.Conf.class
+})
 @RunWith(SpringRunner.class)
 public class MessageSenderImplTest {
 
-	@Autowired
-	private KafkaTemplate kafkaTemplate;
+	@ClassRule
+	public static final EmbeddedKafkaRule embeddedKafka = new EmbeddedKafkaRule(1)
+		.kafkaPorts(9092);
 
-	@Autowired
-	private MessageSender messageSender;
+	@SpyBean
+	private KafkaPostChecker kafkaPostChecker;
 
 	@Autowired
 	private Conf conf;
 
-	@Before
-	public void before(){
-		reset(kafkaTemplate);
-	}
+	@Autowired
+	private MessageSender messageSender;
 
 	@Test
-	public void mustSendWithWithoutWaitMessageCommitWhenThereIsNoDatabaseTransaction() throws Exception {
+	public void mustSendAndWaitForMessageCommitOnKafka() {
 
 		// arrange
-		final ListenableFuture result = mock(ListenableFuture.class);
-		doReturn(result).when(kafkaTemplate).send(any(ProducerRecord.class));
 
 		// act
-		final ListenableFuture<SendResult> listenableFuture = messageSender.send(new ProducerRecord("myTopic", "value"));
+		conf.send(new ProducerRecord<>(
+			"myTopic", "value"
+		));
 
 		// assert
-		verify(listenableFuture, never()).get();
+		final var captor = ArgumentCaptor.forClass(KafkaPost.class);
+		verify(kafkaPostChecker).ensureKafkaPost(captor.capture());
+		assertEquals(0, captor.getValue().getError());
+		assertEquals(1, captor.getValue().getSuccess());
+		assertEquals(1, captor.getValue().getTotal());
+		assertEquals(1, captor.getValue().getExpectToSend());
 
 	}
 
 	@Test
-	public void mustSendAndWaitMessageCommitWhenTransactionIsActive() throws Exception {
+	public void mustSendAndWaitForMessageCommitOnKafkaForTwoMessagesOnDifferentMethodsCalls() {
 
 		// arrange
-		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
-		doReturn(future).when(kafkaTemplate).send(any(ProducerRecord.class));
-		Executors.newSingleThreadScheduledExecutor().submit(() -> {
-			sleep(500);
-			future.set(new SendResult(null, null));
-		});
 
 		// act
-		final ListenableFuture<SendResult> listenableFuture = conf.send();
+		conf.send(new ProducerRecord<>(
+			"myTopic", "value"
+		));
+		conf.send(new ProducerRecord<>(
+			"myTopic", "value 2"
+		));
 
 		// assert
-		verify(listenableFuture).get();
+		final var captor = ArgumentCaptor.forClass(KafkaPost.class);
+		verify(kafkaPostChecker, times(2)).ensureKafkaPost(captor.capture());
+		final var values = captor.getAllValues();
+		assertEquals(2, values.size());
+
 	}
 
 	@Test
-	public void mustThrowExceptionAndRollbackTransactionWhenKafkaPostFail() throws Exception {
+	public void mustSendAndWaitForMessageCommitOnKafkaForTwoMessages() {
 
 		// arrange
-		final SettableListenableFuture<SendResult> future = spy(new SettableListenableFuture());
-		doThrow(TimeoutException.class).when(future).get();
-
-		doReturn(future).when(kafkaTemplate).send(any(ProducerRecord.class));
-		Executors.newSingleThreadScheduledExecutor().submit(() -> {
-			sleep(500);
-			future.setException(new TimeoutException("fail to post message"));
-		});
 
 		// act
-		try {
-			conf.send();
-			fail("transaction must rollback");
-		} catch (KafkaPostException e){
-			// assert
-			verify(future, times(1)).get();
-		}
+		conf.send(List.of(
+			new ProducerRecord<>(
+			"myTopic", "value"
+			),
+			new ProducerRecord<>(
+				"myTopic", "value 2"
+			)
+		));
+
+		// assert
+		final var captor = ArgumentCaptor.forClass(KafkaPost.class);
+		verify(kafkaPostChecker).ensureKafkaPost(captor.capture());
+		assertEquals(0, captor.getValue().getError());
+		assertEquals(2, captor.getValue().getSuccess());
+		assertEquals(2, captor.getValue().getTotal());
+		assertEquals(2, captor.getValue().getExpectToSend());
 
 	}
 
+	@Test
+	public void mustSendAndDonWaitForMessageCommitOnKafka() {
+
+		// arrange
+
+		// act
+		messageSender.send(new ProducerRecord<>(
+			"myTopic", "value"
+		));
+
+		// assert
+		final var captor = ArgumentCaptor.forClass(KafkaPost.class);
+		verify(kafkaPostChecker, never()).ensureKafkaPost(captor.capture());
+
+	}
+
+	@Configuration
 	static class Conf {
 
 		@Autowired
 		private MessageSender messageSender;
 
-		@Bean
-		@Primary
-		public KafkaTemplate kafkaTemplate() {
-			return mock(KafkaTemplate.class);
-		}
-
-		@Bean
-		@Primary
-		public MessageSender messageSender(KafkaTemplate kafkaTemplate) {
-			return new MessageSenderImpl(kafkaTemplate);
-		}
-
-		@Transactional
-		public void send(int times) {
-			for (int i = 0; i < times; i++) {
-				messageSender.send(new ProducerRecord("myTopic", "value"));
-			}
+		@EnsureKafkaPost
+		public void send(List<ProducerRecord> records) {
+			records.forEach(messageSender::send);
 		}
 
 		@EnsureKafkaPost
-		public ListenableFuture send() {
-			return messageSender.send(new ProducerRecord<>("myTopic", "value"));
+		public ListenableFuture send(ProducerRecord r) {
+			return messageSender.send(r);
 		}
 	}
 
-	private void sleep(int millis) {
-		try {
-			Thread.sleep(millis);
-		} catch (Exception e) {
-			throw new RuntimeException(e);
-		}
-	}
 }
