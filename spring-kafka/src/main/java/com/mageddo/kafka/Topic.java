@@ -2,7 +2,10 @@ package com.mageddo.kafka;
 
 import com.mageddo.kafka.consumer.RetryStrategy;
 import lombok.Builder;
+import lombok.NonNull;
 import lombok.Value;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.time.Duration;
@@ -13,22 +16,43 @@ import java.util.Map;
 @Builder(builderClassName = "TopicBuilder")
 public class Topic implements TopicDefinition {
 
+	@NonNull
 	private String name;
+
+	@NonNull
 	private String dlq;
+
+	@NonNull
 	private String factory;
-	private int consumers;
+
+	@NonNull
+	private Integer consumers;
+
 	private Duration interval;
+
+	@NonNull
 	private Duration maxInterval;
-	private int maxTries;
-	private AckMode ackMode = AckMode.RECORD;
-	private boolean autoConfigure = true;
+
+	@NonNull
+	private Integer maxTries;
+
 	private Map<String, Object> props;
 	private RetryStrategy retryStrategy;
 	private String groupId;
 
+	private AckMode ackMode = AckMode.RECORD;
+	private boolean autoConfigure = true;
+
 	public static class TopicBuilder {
 
+		public TopicBuilder name(String name){
+			this.name = name;
+			dlq(KafkaUtils.getDLQ(name));
+			return this;
+		}
+
 		public TopicBuilder autoGroupId(){
+			Validate.notNull(this.name, "must set topic name first");
 			final String groupIdPrefix = System.getProperty("kafka.group.id.prefix", "group");
 			this.groupId = String.format("%s_%s", groupIdPrefix, this.name);
 			return this;
@@ -46,10 +70,7 @@ public class Topic implements TopicDefinition {
 		}
 
 		private Duration max(Duration a, Duration b) {
-			if(a.compareTo(b) < 0){
-				return b;
-			}
-			return a;
+			return ObjectUtils.max(a, b);
 		}
 
 	}

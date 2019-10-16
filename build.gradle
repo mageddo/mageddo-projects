@@ -196,6 +196,7 @@ project(':spring-kafka') {
 		compileOnly 'org.projectlombok:lombok:1.18.10'
 		annotationProcessor 'org.projectlombok:lombok:1.18.10'
 
+		compile(project(':commons'))
 		provided group: 'org.springframework.boot', name: 'spring-boot-starter', version: springBootVersion
 		provided group: 'org.springframework.kafka', name: 'spring-kafka', version: springKafkaVersion
 		provided group: 'org.springframework.boot', name: 'spring-boot-starter-aop', version: springBootVersion

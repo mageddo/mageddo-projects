@@ -50,7 +50,7 @@ public class MessageSenderImplTest {
 
 		// act
 		conf.send(new ProducerRecord<>(
-			"myTopic", "value"
+			"myTopic", "value".getBytes()
 		));
 
 		// assert
@@ -70,10 +70,10 @@ public class MessageSenderImplTest {
 
 		// act
 		conf.send(new ProducerRecord<>(
-			"myTopic", "value"
+			"myTopic", "value".getBytes()
 		));
 		conf.send(new ProducerRecord<>(
-			"myTopic", "value 2"
+			"myTopic", "value 2".getBytes()
 		));
 
 		// assert
@@ -92,10 +92,10 @@ public class MessageSenderImplTest {
 		// act
 		conf.send(List.of(
 			new ProducerRecord<>(
-			"myTopic", "value"
+			"myTopic", "value".getBytes()
 			),
 			new ProducerRecord<>(
-				"myTopic", "value 2"
+				"myTopic", "value 2".getBytes()
 			)
 		));
 
@@ -116,7 +116,7 @@ public class MessageSenderImplTest {
 
 		// act
 		messageSender.send(new ProducerRecord<>(
-			"myTopic", "value"
+			"myTopic", "value".getBytes()
 		));
 
 		// assert

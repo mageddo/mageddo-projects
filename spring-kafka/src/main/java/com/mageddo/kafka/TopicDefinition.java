@@ -10,7 +10,7 @@ public interface TopicDefinition {
 
 	String getName();
 
-	int getConsumers();
+	Integer getConsumers();
 
 	String getFactory();
 
@@ -18,7 +18,7 @@ public interface TopicDefinition {
 
 	Duration getMaxInterval();
 
-	int getMaxTries();
+	Integer getMaxTries();
 
 	boolean isAutoConfigure();
 
