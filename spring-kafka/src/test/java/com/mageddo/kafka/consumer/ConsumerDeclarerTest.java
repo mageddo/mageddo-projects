@@ -1,5 +1,6 @@
 package com.mageddo.kafka.consumer;
 
+import com.mageddo.kafka.EnableSpringKafka;
 import com.mageddo.kafka.SpringKafkaConfig;
 import com.mageddo.kafka.producer.MessageSender;
 import org.apache.kafka.clients.producer.ProducerRecord;
@@ -53,7 +54,7 @@ public class ConsumerDeclarerTest {
 
 
 	@Configuration
-	@Import(SpringKafkaConfig.class)
+	@EnableSpringKafka
 	public static class Conf implements InitializingBean {
 
 		@Autowired
