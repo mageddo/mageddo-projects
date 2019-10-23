@@ -20,7 +20,7 @@ public class Topic implements TopicDefinition {
 	private String name;
 
 	@NonNull
-	private String dlq;
+	private String dlqName;
 
 	@NonNull
 	private String factory;
@@ -47,7 +47,7 @@ public class Topic implements TopicDefinition {
 
 		public TopicBuilder name(String name){
 			this.name = name;
-			dlq(KafkaUtils.getDLQ(name));
+			dlqName(KafkaUtils.getDLQ(name));
 			return this;
 		}
 
