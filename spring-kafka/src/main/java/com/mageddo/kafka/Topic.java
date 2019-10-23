@@ -1,156 +1,78 @@
 package com.mageddo.kafka;
 
 import com.mageddo.kafka.consumer.RetryStrategy;
+import lombok.Builder;
+import lombok.NonNull;
+import lombok.Value;
+import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.Validate;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 
+@Value
+@Builder(builderClassName = "TopicBuilder")
 public class Topic implements TopicDefinition {
 
-	private String topic;
-	private String factory;
-	private int consumers;
-	private long interval;
-	private long maxInterval;
-	private int maxTries;
-	private AckMode ackMode;
-	private boolean autoConfigure;
-	private Map<String, Object> props;
-	private RetryStrategy retryStrategy;
+	@NonNull
+	private String name;
+
+	@NonNull
 	private String dlq;
 
-	public Topic(){
-		this.autoConfigure = true;
-		this.ackMode = AckMode.RECORD;
-	}
+	@NonNull
+	private String factory;
 
-	public Topic(String topic){
-		this();
-		this.topic = topic;
-	}
+	@NonNull
+	private Integer consumers;
 
-	public Topic(String topic, String factory, int consumers, long interval, int maxTries, AckMode ackMode, boolean autoConfigure) {
-		this(topic, factory, consumers, interval, maxTries, ackMode, autoConfigure, null);
-	}
+	private Duration interval;
 
-	public Topic(String topic, String factory, int consumers, long interval, int maxTries, AckMode ackMode, boolean autoConfigure, MapBuilder props) {
-		this();
-		this.topic = topic;
-		this.factory = factory;
-		this.consumers = consumers;
-		this.interval = interval;
-		this.maxInterval = interval;
-		this.maxTries = maxTries;
-		this.ackMode = ackMode;
-		this.autoConfigure = autoConfigure;
-		this.props = props == null ? null : props.get();
-	}
+	@NonNull
+	private Duration maxInterval;
 
-	public String getName() {
-		return topic;
-	}
+	@NonNull
+	private Integer maxTries;
 
-	public int getConsumers() {
-		return consumers;
-	}
+	private Map<String, Object> props;
+	private RetryStrategy retryStrategy;
+	private String groupId;
 
-	public String getFactory() {
-		return factory;
-	}
+	private AckMode ackMode = AckMode.RECORD;
+	private boolean autoConfigure = true;
 
-	public long getInterval() {
-		return interval;
-	}
+	public static class TopicBuilder {
 
-	public int getMaxTries() {
-		return maxTries;
-	}
+		public TopicBuilder name(String name){
+			this.name = name;
+			dlq(KafkaUtils.getDLQ(name));
+			return this;
+		}
 
-	public boolean isAutoConfigure() {
-		return autoConfigure;
-	}
+		public TopicBuilder autoGroupId(){
+			Validate.notNull(this.name, "must set topic name first");
+			final String groupIdPrefix = System.getProperty("kafka.group.id.prefix", "group");
+			this.groupId = String.format("%s_%s", groupIdPrefix, this.name);
+			return this;
+		}
 
-	public AckMode getAckMode() {
-		return ackMode;
-	}
+		public TopicBuilder interval(Duration interval) {
+			this.interval = interval;
+			maxInterval(max(maxInterval, interval));
+			return this;
+		}
 
-	public Map<String, Object> getProps() {
-		return props;
-	}
+		public TopicBuilder maxInterval(Duration maxInterval) {
+			this.maxInterval = max(maxInterval, this.interval);
+			return this;
+		}
 
-	@Override
-	public long getMaxInterval() {
-		return maxInterval;
-	}
+		private Duration max(Duration a, Duration b) {
+			return ObjectUtils.max(a, b);
+		}
 
-	public Topic topic(String topic) {
-		this.topic = topic;
-		return this;
-	}
-
-	public Topic factory(String factory) {
-		this.factory = factory;
-		return this;
-	}
-
-	public Topic consumers(int consumers) {
-		this.consumers = consumers;
-		return this;
-	}
-
-	public Topic interval(long interval) {
-		this.interval = interval;
-		return maxInterval(Math.max(maxInterval, interval));
-	}
-
-	public Topic interval(Duration duration) {
-		return interval(duration.toMillis());
-	}
-
-	private Topic maxInterval(Duration duration) {
-		return maxInterval(duration.toMillis());
-	}
-
-	public Topic maxTries(int maxTries) {
-		this.maxTries = maxTries;
-		return this;
-	}
-
-	public Topic ackMode(AckMode ackMode) {
-		this.ackMode = ackMode;
-		return this;
-	}
-
-	public Topic autoConfigure(boolean autoConfigure) {
-		this.autoConfigure = autoConfigure;
-		return this;
-	}
-
-	public Topic props(Map<String, Object> props) {
-		this.props = props;
-		return this;
-	}
-
-	public Topic props(MapBuilder props) {
-		this.props = props.get();
-		return this;
-	}
-
-	public Topic maxInterval(long maxInterval) {
-		this.maxInterval = Math.max(maxInterval, getInterval());
-		return this;
-	}
-
-	@Override
-	public RetryStrategy getRetryStrategy() {
-		return retryStrategy;
-	}
-
-	public Topic retryStrategy(RetryStrategy retryStrategy) {
-		this.retryStrategy = retryStrategy;
-		return this;
 	}
 
 	public static class MapBuilder {
@@ -160,26 +82,18 @@ public class Topic implements TopicDefinition {
 			this.map = map;
 		}
 
-		public static MapBuilder map(){
+		public static MapBuilder map() {
 			return new MapBuilder(new HashMap<>());
 		}
 
-		public MapBuilder prop(String k, Object v){
+		public MapBuilder prop(String k, Object v) {
 			this.map.put(k, v);
 			return this;
 		}
 
-		public Map<String, Object> get(){
+		public Map<String, Object> get() {
 			return this.map;
 		}
 	}
 
-	public String getDlq() {
-		return dlq;
-	}
-
-	public Topic dlq(String dlq) {
-		this.dlq = dlq;
-		return this;
-	}
 }
