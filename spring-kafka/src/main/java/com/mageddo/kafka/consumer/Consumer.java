@@ -1,7 +1,7 @@
 package com.mageddo.kafka.consumer;
 
-import com.mageddo.kafka.TopicDefinition;
+import com.mageddo.kafka.SpringTopic;
 
 public interface Consumer {
-	TopicDefinition topic();
+	SpringTopic topic();
 }

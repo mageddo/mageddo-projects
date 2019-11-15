@@ -1,6 +1,6 @@
 package com.mageddo.kafka.consumer;
 
-import com.mageddo.kafka.Topic;
+import com.mageddo.kafka.Topics;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -10,7 +10,7 @@ import java.time.Duration;
 @AllArgsConstructor
 public enum TopicEnum {
 
-	FRUIT(Topic
+	FRUIT(Topics
 			.builder()
 			.name(Constants.FRUIT_TOPIC)
 			.factory(Constants.FRUIT_FACTORY)
@@ -23,7 +23,7 @@ public enum TopicEnum {
 
 	;
 
-	private final Topic topic;
+	private final Topics topic;
 
 	public static class Constants {
 		public static final String FRUIT_FACTORY = "fruit_factory";

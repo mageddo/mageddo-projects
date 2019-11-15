@@ -1,7 +1,7 @@
 package com.mageddo.kafka.consumer;
 
 import com.mageddo.common.retry.RetryUtils;
-import com.mageddo.kafka.TopicDefinition;
+import com.mageddo.kafka.SpringTopic;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -33,17 +33,17 @@ public class ConsumerDeclarer implements SchedulingConfigurer {
 	private final boolean autostartup;
 	private final CronTrigger cronTrigger;
 
-	public void declare(final TopicDefinition... topics) {
+	public void declare(final SpringTopic... topics) {
 		declare(Arrays.asList(topics));
 	}
 
-	public void declare(final List<TopicDefinition> topics) {
-		for (TopicDefinition topic : topics) {
+	public void declare(final List<SpringTopic> topics) {
+		for (SpringTopic topic : topics) {
 			declareConsumer(topic);
 		}
 	}
 
-	public void declareConsumer(final TopicDefinition topic) {
+	public void declareConsumer(final SpringTopic topic) {
 
 		if(!topic.isAutoConfigure()){
 			return ;
@@ -70,7 +70,7 @@ public class ConsumerDeclarer implements SchedulingConfigurer {
 		beanFactory.registerSingleton(topic.getFactory(), factory);
 	}
 
-	private RetryTemplate setupRetryTemplate(TopicDefinition topic) {
+	private RetryTemplate setupRetryTemplate(SpringTopic topic) {
 		final RetryStrategy retryStrategy = topic.getRetryStrategy();
 		if(retryStrategy == null){
 			return RetryUtils.retryTemplate(

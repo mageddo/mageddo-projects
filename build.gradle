@@ -223,6 +223,8 @@ project(':spring-kafka') {
 
 	dependencies {
 
+		compile(project(":kafka-commons"))
+//		compile(project(":kafka-producer"))
 		compileOnly 'org.projectlombok:lombok:1.18.10'
 		annotationProcessor 'org.projectlombok:lombok:1.18.10'
 

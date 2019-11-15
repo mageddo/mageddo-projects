@@ -14,13 +14,13 @@ import java.util.Map;
 
 @Value
 @Builder(builderClassName = "TopicBuilder")
-public class Topic implements TopicDefinition {
+public class Topics implements SpringTopic {
 
 	@NonNull
 	private String name;
 
 	@NonNull
-	private String dlqName;
+	private String dlq;
 
 	@NonNull
 	private String factory;

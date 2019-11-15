@@ -1,16 +1,13 @@
 package com.mageddo.kafka;
 
 import com.mageddo.kafka.consumer.RetryStrategy;
+import kafka.Topic;
 import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.time.Duration;
 import java.util.Map;
 
-public interface TopicDefinition {
-
-	String getName();
-
-	String getDlqName();
+public interface SpringTopic extends Topic {
 
 	Integer getConsumers();
 
