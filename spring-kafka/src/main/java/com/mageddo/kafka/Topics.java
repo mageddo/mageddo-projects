@@ -47,7 +47,7 @@ public class Topics implements SpringTopic {
 
 		public TopicBuilder name(String name){
 			this.name = name;
-//			dlqName(KafkaUtils.getDLQ(name));
+			dlq(kafka.Topics.getDLQ(Validate.notNull(name)));
 			return this;
 		}
 
