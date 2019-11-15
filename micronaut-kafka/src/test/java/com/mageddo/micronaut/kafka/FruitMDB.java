@@ -13,13 +13,13 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @KafkaListener(
 	groupId = "fruitGroupId", clientId = "vanilla",
 	offsetStrategy = OffsetStrategy.ASYNC,
 	offsetReset = OffsetReset.EARLIEST,
 	threads = 2
 )
-@Slf4j
 @Singleton
 public class FruitMDB implements RecoverConsumer {
 

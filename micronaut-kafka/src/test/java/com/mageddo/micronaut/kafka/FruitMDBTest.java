@@ -1,6 +1,7 @@
 package com.mageddo.micronaut.kafka;
 
 import com.mageddo.kafka.producer.MessageSender;
+import com.mageddo.kafka.producer.MessageSenderImpl;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
@@ -31,7 +32,7 @@ class FruitMDBTest {
 	private MicronautKafkaConfig micronautKafkaConfig;
 
 	@BeforeEach
-	public void before() throws InterruptedException {
+	void before() throws InterruptedException {
 		// wait kafka startup
 		TimeUnit.SECONDS.sleep(5);
 	}
@@ -68,7 +69,7 @@ class FruitMDBTest {
 
 	@Primary
 	@MockBean(MessageSender.class)
-	public MessageSender mockKafkaProducer(MessageSender messageSender) {
+	public MessageSender mockKafkaProducer(MessageSenderImpl messageSender) {
 		return Mockito.spy(messageSender);
 	}
 }

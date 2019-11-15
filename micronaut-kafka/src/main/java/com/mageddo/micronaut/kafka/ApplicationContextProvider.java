@@ -2,9 +2,6 @@ package com.mageddo.micronaut.kafka;
 
 import io.micronaut.context.ApplicationContext;
 
-import javax.inject.Singleton;
-
-@Singleton
 public class ApplicationContextProvider  {
 
 	private static ApplicationContext context;

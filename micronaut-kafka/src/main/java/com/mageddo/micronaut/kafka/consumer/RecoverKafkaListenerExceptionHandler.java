@@ -1,10 +1,10 @@
 package com.mageddo.micronaut.kafka.consumer;
 
+import com.mageddo.kafka.producer.MessageSender;
 import io.micronaut.configuration.kafka.exceptions.KafkaListenerException;
 import io.micronaut.configuration.kafka.exceptions.KafkaListenerExceptionHandler;
 import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
-import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +48,8 @@ public interface RecoverKafkaListenerExceptionHandler extends KafkaListenerExcep
 		}
 	}
 
-	default KafkaProducer producer() {
+	default MessageSender producer() {
 		return context()
-		.getBean(KafkaProducer.class);
+		.getBean(MessageSender.class);
 	}
 }
