@@ -1,7 +1,6 @@
 package com.mageddo.micronaut.kafka;
 
 import com.mageddo.micronaut.kafka.consumer.RecoverConsumer;
-import com.mageddo.micronaut.kafka.consumer.TopicDefinition;
 import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.OffsetReset;
 import io.micronaut.configuration.kafka.annotation.OffsetStrategy;
@@ -41,7 +40,7 @@ public class FruitMDB implements RecoverConsumer {
 	}
 
 	@Override
-	public TopicDefinition topic() {
+	public kafka.Topic topic() {
 		return TopicEnum.FRUIT.getTopic();
 	}
 }

@@ -16,12 +16,16 @@ dependencies {
 	annotationProcessor "io.micronaut:micronaut-validation:${micronautVersion}"
 	annotationProcessor "io.micronaut:micronaut-inject-java:${micronautVersion}"
 
-	compile "io.micronaut.configuration:micronaut-kafka:1.2.0"
-	compile "io.micronaut:micronaut-validation:${micronautVersion}"
-	compile "io.micronaut:micronaut-runtime:${micronautVersion}"
+	compile(project(":kafka-commons"))
+	compile(project(":kafka-producer"))
 
-	compile "io.micronaut:micronaut-inject:${micronautVersion}"
+	provided "io.micronaut.configuration:micronaut-kafka:1.2.0"
+	provided "io.micronaut:micronaut-validation:${micronautVersion}"
+	provided "io.micronaut:micronaut-runtime:${micronautVersion}"
+
+	provided "io.micronaut:micronaut-inject:${micronautVersion}"
 	compileOnly "io.micronaut:micronaut-inject-java:${micronautVersion}"
+	provided group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 
 	testAnnotationProcessor "io.micronaut:micronaut-inject-java:${micronautVersion}"
 	testAnnotationProcessor "io.micronaut:micronaut-validation:${micronautVersion}"

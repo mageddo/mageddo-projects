@@ -1,14 +1,13 @@
-package com.mageddo.kafka;
-
-import com.mageddo.kafka.consumer.RetryStrategy;
-import org.springframework.kafka.listener.ContainerProperties.AckMode;
+package kafka;
 
 import java.time.Duration;
 import java.util.Map;
 
-public interface TopicDefinition {
+public interface Topic {
 
 	String getName();
+
+	String getDlq();
 
 	Integer getConsumers();
 
@@ -22,11 +21,7 @@ public interface TopicDefinition {
 
 	boolean isAutoConfigure();
 
-	AckMode getAckMode();
-
 	Map<String, Object> getProps();
-
-	RetryStrategy getRetryStrategy();
 
 	String getGroupId();
 }

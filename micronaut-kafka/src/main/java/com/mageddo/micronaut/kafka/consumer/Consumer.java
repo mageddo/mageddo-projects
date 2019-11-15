@@ -1,5 +1,7 @@
 package com.mageddo.micronaut.kafka.consumer;
 
+import kafka.Topic;
+
 public interface Consumer {
-	TopicDefinition topic();
+	Topic topic();
 }

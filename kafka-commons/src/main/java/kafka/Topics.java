@@ -1,12 +1,10 @@
-package com.mageddo.kafka;
+package kafka;
 
-import com.mageddo.kafka.consumer.RetryStrategy;
+import kafka.internals.ObjectUtils;
+import kafka.internals.Validate;
 import lombok.Builder;
 import lombok.NonNull;
 import lombok.Value;
-import org.apache.commons.lang3.ObjectUtils;
-import org.apache.commons.lang3.Validate;
-import org.springframework.kafka.listener.ContainerProperties.AckMode;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -14,7 +12,7 @@ import java.util.Map;
 
 @Value
 @Builder(builderClassName = "TopicBuilder")
-public class Topic implements TopicDefinition {
+public class Topics implements Topic {
 
 	@NonNull
 	private String name;
@@ -37,17 +35,15 @@ public class Topic implements TopicDefinition {
 	private Integer maxTries;
 
 	private Map<String, Object> props;
-	private RetryStrategy retryStrategy;
 	private String groupId;
 
-	private AckMode ackMode = AckMode.RECORD;
 	private boolean autoConfigure = true;
 
 	public static class TopicBuilder {
 
 		public TopicBuilder name(String name){
 			this.name = name;
-			dlq(KafkaUtils.getDLQ(name));
+			dlq(getDLQ(name));
 			return this;
 		}
 
@@ -94,6 +90,22 @@ public class Topic implements TopicDefinition {
 		public Map<String, Object> get() {
 			return this.map;
 		}
+	}
+
+	public static String nextTopic(String topic){
+		return nextTopic(topic, 1);
+	}
+
+	public static String nextTopic(String topic, int retriesTopics){
+		final int i = topic.toUpperCase().indexOf("_RETRY");
+		if(i >= 0){
+			return getDLQ(topic.substring(0, i));
+		}
+		return topic + "_RETRY";
+	}
+
+	public static String getDLQ(String topic){
+		return String.format("%s_DLQ", topic);
 	}
 
 }

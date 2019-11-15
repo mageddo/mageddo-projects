@@ -187,6 +187,36 @@ project(':spring-log-tracer'){
 	}
 }
 
+project(':kafka-producer') {
+	archivesBaseName = 'kafka-producer'
+	version '1.0.0'
+
+	dependencies {
+
+		compileOnly 'org.projectlombok:lombok:1.18.10'
+		annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+		compile(project(':commons'))
+		provided group: 'org.apache.kafka', name: 'kafka-clients', version: '2.3.0'
+
+	}
+}
+
+project(':kafka-commons') {
+	archivesBaseName = 'kafka-commons'
+	version '1.0.0'
+
+	dependencies {
+
+		compileOnly 'org.projectlombok:lombok:1.18.10'
+		annotationProcessor 'org.projectlombok:lombok:1.18.10'
+
+//		provided group: 'org.apache.kafka', name: 'kafka-clients', version: '2.3.0'
+//		provided group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+
+	}
+}
+
 project(':spring-kafka') {
 	archivesBaseName = 'spring-kafka'
 	version '2.2.0'
