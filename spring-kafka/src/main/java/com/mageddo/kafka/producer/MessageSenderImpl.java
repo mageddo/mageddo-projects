@@ -1,6 +1,7 @@
 package com.mageddo.kafka.producer;
 
 import com.mageddo.kafka.HeaderKeys;
+import com.mageddo.kafka.exception.KafkaPostException;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
@@ -8,6 +9,8 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.kafka.support.SendResult;
 import org.springframework.util.concurrent.ListenableFuture;
+
+import java.util.concurrent.ExecutionException;
 
 @RequiredArgsConstructor
 public class MessageSenderImpl implements MessageSender {
@@ -17,6 +20,15 @@ public class MessageSenderImpl implements MessageSender {
 	@Override
 	public ListenableFuture<SendResult> send(ProducerRecord r) {
 		return kafkaTemplate.send(r);
+	}
+
+	@Override
+	public SendResult sendSync(ProducerRecord r) {
+		try {
+			return send(r).get();
+		} catch (InterruptedException | ExecutionException e) {
+			throw new KafkaPostException(e);
+		}
 	}
 
 	@Override
