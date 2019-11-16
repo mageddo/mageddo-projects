@@ -5,9 +5,12 @@ import com.mageddo.kafka.producer.MessageSenderImpl;
 import com.mageddo.kafka.producer.handler.KafkaPost;
 import com.mageddo.kafka.producer.handler.KafkaPostChecker;
 import com.mageddo.kafka.producer.handler.KafkaPostCheckerAspect;
+import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.config.ConfigurableBeanFactory;
 import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
@@ -19,7 +22,9 @@ import org.springframework.scheduling.support.CronTrigger;
 @EnableKafka
 @EnableScheduling
 @Configuration
-public class SpringKafkaConfig {
+public class SpringKafkaConfig implements ApplicationContextAware {
+
+	private static ApplicationContext context;
 
 	@Bean
 	public KafkaPostChecker kafkaPostChecker(){
@@ -49,5 +54,14 @@ public class SpringKafkaConfig {
 		return new ConsumerDeclarer(
 			beanFactory, endpointRegistry, kafkaProperties, autoStartup, new CronTrigger(cronTrigger)
 		);
+	}
+
+	@Override
+	public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+		context = applicationContext;
+	}
+
+	public static ApplicationContext context() {
+		return context;
 	}
 }

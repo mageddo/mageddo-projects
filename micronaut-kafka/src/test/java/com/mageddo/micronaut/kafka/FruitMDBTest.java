@@ -1,5 +1,7 @@
 package com.mageddo.micronaut.kafka;
 
+import com.mageddo.kafka.producer.MessageSender;
+import com.mageddo.kafka.producer.MessageSenderImpl;
 import io.micronaut.context.annotation.Primary;
 import io.micronaut.test.annotation.MicronautTest;
 import io.micronaut.test.annotation.MockBean;
@@ -21,7 +23,7 @@ import static org.mockito.Mockito.verify;
 class FruitMDBTest {
 
 	@Inject
-	private KafkaProducer kafkaProducer;
+	private MessageSender messageSender;
 
 	@Inject
 	private FruitMDB fruitMDB;
@@ -30,7 +32,7 @@ class FruitMDBTest {
 	private MicronautKafkaConfig micronautKafkaConfig;
 
 	@BeforeEach
-	public void before() throws InterruptedException {
+	void before() throws InterruptedException {
 		// wait kafka startup
 		TimeUnit.SECONDS.sleep(5);
 	}
@@ -40,7 +42,7 @@ class FruitMDBTest {
 		// arrange
 
 		// act
-		kafkaProducer.send(new ProducerRecord<>(TopicEnum.Constants.FRUIT_TOPIC, "Banana".getBytes()));
+		messageSender.send(new ProducerRecord<>(TopicEnum.Constants.FRUIT_TOPIC, "Banana".getBytes()));
 		// waiting consuming
 		TimeUnit.SECONDS.sleep(2);
 
@@ -55,19 +57,19 @@ class FruitMDBTest {
 		// arrange
 
 		// act
-		kafkaProducer.send(new ProducerRecord<>(TopicEnum.Constants.FRUIT_TOPIC, "Apple".getBytes()));
+		messageSender.send(new ProducerRecord<>(TopicEnum.Constants.FRUIT_TOPIC, "Apple".getBytes()));
 		// waiting consuming
 		TimeUnit.SECONDS.sleep(2);
 
 		// assert
 		assertTrue(fruitMDB.records.isEmpty());
 		assertEquals(2, fruitMDB.retried.size());
-		verify(kafkaProducer, times(2)).send(any());
+		verify(messageSender, times(2)).send(any());
 	}
 
 	@Primary
-	@MockBean(KafkaProducer.class)
-	public KafkaProducer mockKafkaProducer(KafkaProducerDefault kafkaProducer) {
-		return Mockito.spy(kafkaProducer);
+	@MockBean(MessageSender.class)
+	public MessageSender mockKafkaProducer(MessageSenderImpl messageSender) {
+		return Mockito.spy(messageSender);
 	}
 }

@@ -1,8 +1,9 @@
 package com.mageddo.micronaut.kafka.consumer;
 
-import com.mageddo.micronaut.kafka.KafkaProducer;
+import com.mageddo.kafka.producer.MessageSender;
 import io.micronaut.configuration.kafka.exceptions.KafkaListenerException;
 import io.micronaut.configuration.kafka.exceptions.KafkaListenerExceptionHandler;
+import lombok.SneakyThrows;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
@@ -16,6 +17,7 @@ public interface RecoverKafkaListenerExceptionHandler extends KafkaListenerExcep
 
 	Logger LOG = LoggerFactory.getLogger("RecoverKafkaListenerExceptionHandler");
 
+	@SneakyThrows
 	default void handle(KafkaListenerException exception){
 		if(exception.getConsumerRecord().isPresent()){
 			final ConsumerRecord<String, byte[]> consumerRecord = (ConsumerRecord<String, byte[]>) exception
@@ -25,7 +27,7 @@ public interface RecoverKafkaListenerExceptionHandler extends KafkaListenerExcep
 			try {
 				final Consumer c = (Consumer) exception.getKafkaListener();
 				producer()
-				.send(new ProducerRecord<>(c.topic().getDlqName(), consumerRecord.key(), consumerRecord.value()))
+				.send(new ProducerRecord<>(c.topic().getDlq(), consumerRecord.key(), consumerRecord.value()))
 				.get()
 				;
 				LOG.error(
@@ -39,15 +41,15 @@ public interface RecoverKafkaListenerExceptionHandler extends KafkaListenerExcep
 					consumerRecord.partition(), consumerRecord.offset(),
 					consumerRecord.key(), new String(consumerRecord.value()), exception
 				);
-				throw new RuntimeException(e);
+				throw e;
 			}
 		} else {
 			LOG.error("status=fatal", exception);
 		}
 	}
 
-	default KafkaProducer producer() {
+	default MessageSender producer() {
 		return context()
-		.getBean(KafkaProducer.class);
+		.getBean(MessageSender.class);
 	}
 }

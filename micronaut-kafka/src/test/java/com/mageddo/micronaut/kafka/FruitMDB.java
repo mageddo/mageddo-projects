@@ -1,7 +1,6 @@
 package com.mageddo.micronaut.kafka;
 
 import com.mageddo.micronaut.kafka.consumer.RecoverConsumer;
-import com.mageddo.micronaut.kafka.consumer.TopicDefinition;
 import io.micronaut.configuration.kafka.annotation.KafkaListener;
 import io.micronaut.configuration.kafka.annotation.OffsetReset;
 import io.micronaut.configuration.kafka.annotation.OffsetStrategy;
@@ -14,13 +13,13 @@ import javax.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 @KafkaListener(
 	groupId = "fruitGroupId", clientId = "vanilla",
 	offsetStrategy = OffsetStrategy.ASYNC,
 	offsetReset = OffsetReset.EARLIEST,
 	threads = 2
 )
-@Slf4j
 @Singleton
 public class FruitMDB implements RecoverConsumer {
 
@@ -41,7 +40,7 @@ public class FruitMDB implements RecoverConsumer {
 	}
 
 	@Override
-	public TopicDefinition topic() {
+	public kafka.Topic topic() {
 		return TopicEnum.FRUIT.getTopic();
 	}
 }

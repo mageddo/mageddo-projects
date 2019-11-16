@@ -1,6 +1,7 @@
 package com.mageddo.micronaut.kafka;
 
-import com.mageddo.micronaut.kafka.consumer.Topic;
+import kafka.Topic;
+import kafka.Topics;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
@@ -8,10 +9,10 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum TopicEnum {
 	FRUIT(
-		Topic
+		Topics
 		.builder()
 		.name(Constants.FRUIT_TOPIC)
-		.dlqName(Constants.FRUIT_DLQ_TOPIC)
+		.dlq(Constants.FRUIT_DLQ_TOPIC)
 		.build()
 	);
 

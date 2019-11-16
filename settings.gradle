@@ -2,6 +2,8 @@ rootProject.name = 'mageddo-projects'
 
 include 'commons'
 include 'feature-switch'
+include 'kafka-producer'
+include 'kafka-commons'
 include 'micronaut-kafka'
 include 'spring-profile'
 include 'spring-log-tracer'
