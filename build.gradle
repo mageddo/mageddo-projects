@@ -145,7 +145,6 @@ project(':kafka-commons') {
 
 project(':spring-kafka') {
 	archivesBaseName = 'spring-kafka'
-	version '2.2.0'
 
 	dependencies {
 
