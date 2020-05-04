@@ -1,3 +1,5 @@
+### Moved to https://github.com/mageddo-projects/annotation-processing-tools/tree/master/lombok-ext
+
 String multiline support for Java without concatenation overhead 
 
 * [Play the demo project](https://github.com/mageddo/mageddo-projects/tree/master/raw-string-literals-demo)
