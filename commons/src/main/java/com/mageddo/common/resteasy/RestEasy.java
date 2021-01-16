@@ -1,6 +1,5 @@
 package com.mageddo.common.resteasy;
 
-import com.mageddo.common.net.ssl.MockSSLUtils;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpRequestBase;
@@ -8,16 +7,10 @@ import org.apache.http.impl.client.HttpClientBuilder;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.jboss.resteasy.client.jaxrs.engines.ApacheHttpClient43Engine;
 import org.jboss.resteasy.client.jaxrs.internal.ClientInvocation;
+import org.jboss.resteasy.client.jaxrs.internal.ResteasyClientBuilderImpl;
 
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.Configuration;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
-import java.security.SecureRandom;
-import java.security.cert.X509Certificate;
 import java.time.Duration;
 
 import static com.mageddo.common.net.ssl.MockSSLUtils.createFakeHostnameVerifier;
@@ -61,7 +54,7 @@ public final class RestEasy {
 	}
 
 	public static ResteasyClientBuilder newRestEasyBuilder(HttpClientBuilder clientBuilder) {
-		return new ResteasyClientBuilder()
+		return new ResteasyClientBuilderImpl()
 			.httpEngine(withPerRequestTimeout(clientBuilder.build()))
 			;
 	}
