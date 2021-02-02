@@ -104,12 +104,12 @@ public class JdbcHelper {
 		return UUID.fromString(v);
 	}
 
-	public static<T extends Enum<T>> Enum<T> getEnum(ResultSet rs, String label, T defaultValue) throws SQLException {
+	public static<T extends Enum<T>> T getEnum(ResultSet rs, String label, Class<T> clazz, T defaultValue) throws SQLException {
 		final String v = rs.getString(label);
 		if(rs.wasNull()){
 			return defaultValue;
 		}
-		return Enum.valueOf(defaultValue.getClass(), v);
+		return Enum.valueOf(clazz, v);
 	}
 
 }
