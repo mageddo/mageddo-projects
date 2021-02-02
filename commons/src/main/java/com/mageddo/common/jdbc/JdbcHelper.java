@@ -3,10 +3,16 @@ package com.mageddo.common.jdbc;
 import com.mageddo.common.monetary.Monetary;
 
 import java.math.BigDecimal;
-import java.sql.*;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.sql.Types;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.UUID;
 
 public class JdbcHelper {
 
@@ -84,6 +90,26 @@ public class JdbcHelper {
 
 	public static BigDecimal getBigDecimal(ResultSet rs, String label, BigDecimal defaultValue) throws SQLException {
 		return Optional.ofNullable(rs.getBigDecimal(label)).orElse(defaultValue);
+	}
+
+	public static UUID getUUID(ResultSet rs, String label) throws SQLException {
+		return getUUID(rs, label, null);
+	}
+
+	public static UUID getUUID(ResultSet rs, String label, UUID defaultValue) throws SQLException {
+		final String v = rs.getString(label);
+		if(rs.wasNull()){
+			return defaultValue;
+		}
+		return UUID.fromString(v);
+	}
+
+	public static<T extends Enum<T>> Enum<T> getEnum(ResultSet rs, String label, T defaultValue) throws SQLException {
+		final String v = rs.getString(label);
+		if(rs.wasNull()){
+			return defaultValue;
+		}
+		return Enum.valueOf(defaultValue.getClass(), v);
 	}
 
 }
